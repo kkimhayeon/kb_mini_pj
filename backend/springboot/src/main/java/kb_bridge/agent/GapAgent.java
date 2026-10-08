@@ -44,7 +44,7 @@ public class GapAgent {
                 .map(this::toGapResult)
                 .toList();
         String message = gaps.isEmpty()
-                ? "현재 RM 사전정보와 확인 가능한 공개정보에서 규칙 기반 Gap을 찾지 못했습니다."
+                ? "현재 RM 사전정보와 확인 가능한 공개정보 사이에서 변경 후보를 찾지 못했습니다."
                 : gaps.size() + "개의 고객정보 업데이트 후보를 확인했습니다.";
         return new GapAnalysisResponse(company, corpCode, financials, gaps, message);
     }
@@ -53,31 +53,89 @@ public class GapAgent {
         var insight = geminiInsightService.generate(finding);
         return new GapResult(
                 finding.type(),
+                changeType(finding),
+                assessmentStatus(finding),
+                displayLabel(finding),
+                severity(finding),
                 finding.existingInfo(),
                 finding.latestInfo(),
                 insight.map(GeminiInsightService.Insight::reason)
-                        .orElse("기존 RM 상담정보와 최신 OpenDART 공개정보가 일치하지 않을 가능성이 있습니다."),
+                        .orElse(reasonFor(finding)),
                 insight.isPresent() ? "Gemini" : "Rule fallback",
                 finding.evidence(),
                 insight.map(GeminiInsightService.Insight::questions)
-                        .orElseGet(() -> questionsFor(finding.type()))
+                        .orElseGet(() -> questionsFor(finding))
         );
     }
 
-    private List<String> questionsFor(GapType type) {
-        return switch (type) {
+
+    private String changeType(Finding finding) {
+        String latestInfo = finding.latestInfo() == null ? "" : finding.latestInfo();
+        if (latestInfo.contains("검토 단계") || latestInfo.contains("유사한") || latestInfo.contains("불명확")) {
+            return "NEEDS_CONFIRMATION";
+        }
+        if (latestInfo.contains("없지만")) {
+            return "CONFLICT";
+        }
+        if (latestInfo.contains("다른")) {
+            return "SPECIFIED";
+        }
+        return "NEW_INFO";
+    }
+
+    private String assessmentStatus(Finding finding) {
+        return "NEEDS_CONFIRMATION".equals(changeType(finding)) ? "PENDING" : "CONFIRMED";
+    }
+
+    private String displayLabel(Finding finding) {
+        return switch (changeType(finding)) {
+            case "CONFLICT" -> "기존 정보와 상충";
+            case "NEEDS_CONFIRMATION" -> "추가 확인 필요";
+            case "SPECIFIED" -> "기존 계획과 다른 공개정보";
+            case "NEW_INFO" -> "신규 공개정보 발견";
+            default -> "확인 필요";
+        };
+    }
+
+    private String severity(Finding finding) {
+        return switch (changeType(finding)) {
+            case "CONFLICT" -> "HIGH";
+            case "SPECIFIED" -> "MEDIUM";
+            case "NEEDS_CONFIRMATION" -> "MEDIUM";
+            default -> "LOW";
+        };
+    }
+    private String reasonFor(Finding finding) {
+        String evidenceTitle = firstEvidenceTitle(finding.evidence());
+        return "기존 RM 정보와 최근 공개정보 사이에 확인이 필요한 차이가 있습니다. 근거: " + evidenceTitle;
+    }
+
+    private List<String> questionsFor(Finding finding) {
+        String existingInfo = finding.existingInfo() == null || finding.existingInfo().isBlank()
+                ? "기존 RM 정보 없음"
+                : finding.existingInfo();
+        String evidenceTitle = firstEvidenceTitle(finding.evidence());
+
+        return switch (finding.type()) {
             case INVESTMENT_PLAN_GAP -> List.of(
-                    "공시된 투자 건의 실제 집행 일정과 필요한 자금 규모는 어떻게 됩니까?",
-                    "투자 자금은 자체자금과 외부조달 중 어떤 방식으로 마련할 계획입니까?"
+                    "기존 RM 정보는 '" + existingInfo + "'로 파악되어 있었는데, 최근 '" + evidenceTitle + "' 공시와 관련해 투자 범위나 일정이 변경된 부분이 있습니까?",
+                    "해당 투자 건의 필요 자금 규모와 조달 방식은 어떻게 계획하고 있습니까?"
             );
             case FUNDING_PLAN_GAP -> List.of(
-                    "최근 자금조달 또는 차입 변화의 목적과 필요 규모는 어떻게 됩니까?",
-                    "상환 일정과 추가 자금조달 계획이 있습니까?"
+                    "기존 RM 정보는 '" + existingInfo + "'로 파악되어 있었는데, 최근 '" + evidenceTitle + "' 근거와 관련해 자금조달 계획이 변경되었습니까?",
+                    "이번 자금조달의 사용 목적, 규모, 상환 또는 후속 조달 계획은 어떻게 보고 있습니까?"
             );
             case FX_BUSINESS_GAP -> List.of(
-                    "해외사업 또는 해외법인 투자 계획의 현재 진행 단계와 일정은 어떻게 됩니까?",
-                    "해외사업에 필요한 외화 규모와 환위험 관리 계획은 무엇입니까?"
+                    "기존 RM 정보는 '" + existingInfo + "'로 파악되어 있었는데, 최근 '" + evidenceTitle + "' 공시와 관련해 해외사업 또는 출자 계획이 변경되었습니까?",
+                    "해외사업 진행 단계, 필요 외화 규모, 환위험 관리 계획은 어떻게 보고 있습니까?"
             );
         };
+    }
+
+    private String firstEvidenceTitle(List<DisclosureEvidence> evidence) {
+        if (evidence == null || evidence.isEmpty() || evidence.get(0).title() == null || evidence.get(0).title().isBlank()) {
+            return "확인된 공개정보";
+        }
+        return evidence.get(0).title().trim();
     }
 }

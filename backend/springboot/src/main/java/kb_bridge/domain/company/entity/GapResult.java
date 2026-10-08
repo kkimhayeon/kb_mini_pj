@@ -6,6 +6,10 @@ import kb_bridge.rule.GapRuleEngine.GapType;
 
 public record GapResult(
         GapType gapType,
+        String changeType,
+        String assessmentStatus,
+        String displayLabel,
+        String severity,
         String existingInfo,
         String latestInfo,
         String reason,

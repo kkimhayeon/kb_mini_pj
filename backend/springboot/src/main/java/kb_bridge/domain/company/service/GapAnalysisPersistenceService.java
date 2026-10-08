@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
-import kb_bridge.domain.company.entity.Company;
 import kb_bridge.domain.company.entity.DisclosureEvidence;
 import kb_bridge.domain.company.entity.FinancialSnapshot;
 import kb_bridge.domain.company.entity.GapAnalysisResponse;
@@ -67,7 +66,7 @@ public class GapAnalysisPersistenceService {
             for (DisclosureEvidence evidence : gap.evidence()) {
                 extractReceiptNumber(evidence)
                         .ifPresent(rceptNo -> {
-                            long evidenceId = upsertEvidence(companyPk, rceptNo, evidence);
+                            long evidenceId = upsertEvidence(companyPk, rceptNo, evidence, gap);
                             linkEvidence(resultId, evidenceId);
                         });
             }
@@ -108,7 +107,7 @@ public class GapAnalysisPersistenceService {
                             .map(this::factSnapshot)
                             .toList()
             )));
-            ps.setString(6, "gap-rule-v1");
+            ps.setString(6, "gap-rule-v2");
             ps.setString(7, null);
             ps.setBoolean(8, false);
             return ps;
@@ -150,27 +149,72 @@ public class GapAnalysisPersistenceService {
                 ps.setLong(3, planId);
             }
             ps.setString(4, toDomain(gap.gapType()));
-            ps.setString(5, toChangeType(gap.gapType()));
-            ps.setString(6, "CONFIRMED");
+            String changeType = gap.changeType();
+            ps.setString(5, changeType);
+            ps.setString(6, gap.assessmentStatus());
             ps.setInt(7, priority(gap.gapType()));
             ps.setString(8, gap.reason());
-            ps.setString(9, toJson(List.of(Map.of(
-                    "field", toDomain(gap.gapType()),
-                    "before", gap.existingInfo(),
-                    "after", gap.latestInfo()
-            ))));
+            ps.setString(9, toJson(List.of(changedField(gap))));
             ps.setString(10, financials == null ? null : toJson(financials));
-            ps.setString(11, toJson(Map.of(
-                    "explanationSource", gap.explanationSource(),
-                    "questionCount", gap.questions().size()
-            )));
-            ps.setString(12, gap.latestInfo());
+            ps.setString(11, toJson(environmentContext(gap)));
+            ps.setString(12, summary(gap));
             return ps;
         }, keyHolder);
         return keyHolder.getKey().longValue();
     }
 
-    private long upsertEvidence(long companyId, String rceptNo, DisclosureEvidence evidence) {
+    private Map<String, Object> changedField(GapResult gap) {
+        Map<String, Object> field = new LinkedHashMap<>();
+        field.put("field", toDomain(gap.gapType()));
+        field.put("detected_change", gap.latestInfo());
+        field.put("before", Map.of(
+                "source", "rm_plan",
+                "value", gap.existingInfo() == null || gap.existingInfo().isBlank() ? "계획 없음" : gap.existingInfo()
+        ));
+        field.put("after", Map.of(
+                "source", "opendart",
+                "evidence", gap.evidence().stream()
+                        .map(this::evidenceSnapshot)
+                        .toList()
+        ));
+        field.put("evidence_count", gap.evidence().size());
+        return field;
+    }
+
+    private Map<String, Object> evidenceSnapshot(DisclosureEvidence evidence) {
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        snapshot.put("source", evidence.source());
+        snapshot.put("report_name", evidence.title() == null ? null : evidence.title().trim());
+        snapshot.put("disclosed_at", evidence.date());
+        snapshot.put("rcept_no", extractReceiptNumber(evidence).orElse(null));
+        snapshot.put("source_url", evidence.url());
+        return snapshot;
+    }
+
+    private Map<String, Object> environmentContext(GapResult gap) {
+        Map<String, Object> context = new LinkedHashMap<>();
+        context.put("explanationSource", gap.explanationSource());
+        context.put("questionCount", gap.questions().size());
+        context.put("detectedChange", gap.latestInfo());
+        context.put("evidenceTitles", gap.evidence().stream()
+                .map(DisclosureEvidence::title)
+                .filter(title -> title != null && !title.isBlank())
+                .map(String::trim)
+                .toList());
+        return context;
+    }
+
+    private String summary(GapResult gap) {
+        String firstEvidenceTitle = gap.evidence().stream()
+                .map(DisclosureEvidence::title)
+                .filter(title -> title != null && !title.isBlank())
+                .map(String::trim)
+                .findFirst()
+                .orElse("공개정보");
+        return gap.latestInfo() + ": " + firstEvidenceTitle;
+    }
+
+    private long upsertEvidence(long companyId, String rceptNo, DisclosureEvidence evidence, GapResult gap) {
         return jdbcTemplate.queryForObject("""
                 INSERT INTO external_evidence (
                     company_id,
@@ -181,9 +225,10 @@ public class GapAnalysisPersistenceService {
                     source_url,
                     evidence_text,
                     evidence_location,
+                    changed_values,
                     retrieved_at
                 )
-                VALUES (?, 'OPENDART', ?, ?, ?, ?, ?, ?, now())
+                VALUES (?, 'OPENDART', ?, ?, ?, ?, ?, ?, ?::jsonb, now())
                 ON CONFLICT (source_system, rcept_no)
                 DO UPDATE SET
                     report_name = EXCLUDED.report_name,
@@ -191,6 +236,7 @@ public class GapAnalysisPersistenceService {
                     source_url = EXCLUDED.source_url,
                     evidence_text = EXCLUDED.evidence_text,
                     evidence_location = EXCLUDED.evidence_location,
+                    changed_values = EXCLUDED.changed_values,
                     retrieved_at = EXCLUDED.retrieved_at
                 RETURNING evidence_id
                 """,
@@ -201,13 +247,18 @@ public class GapAnalysisPersistenceService {
                 parseDate(evidence.date()),
                 evidence.url(),
                 evidence.title(),
-                "OpenDART disclosure list");
+                "OpenDART disclosure list",
+                toJson(Map.of(
+                        "detected_change", gap.latestInfo(),
+                        "domain", toDomain(gap.gapType()),
+                        "report_name", evidence.title() == null ? "" : evidence.title().trim()
+                )));
     }
 
     private void linkEvidence(long resultId, long evidenceId) {
         jdbcTemplate.update("""
                 INSERT INTO gap_result_evidence (result_id, evidence_id, usage_type, reason)
-                VALUES (?, ?, 'PRIMARY', 'Matched by rule engine')
+                VALUES (?, ?, 'PRIMARY', 'Matched by rule engine and stored as structured evidence')
                 ON CONFLICT (result_id, evidence_id) DO NOTHING
                 """, resultId, evidenceId);
     }
@@ -255,11 +306,6 @@ public class GapAnalysisPersistenceService {
         };
     }
 
-    private String toChangeType(GapType gapType) {
-        return switch (gapType) {
-            case INVESTMENT_PLAN_GAP, FUNDING_PLAN_GAP, FX_BUSINESS_GAP -> "CONFLICT";
-        };
-    }
 
     private int priority(GapType gapType) {
         return switch (gapType) {

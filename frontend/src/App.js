@@ -20,6 +20,20 @@ const GAP_LABELS = {
   FX_BUSINESS_GAP: '해외사업 변경 후보',
 };
 
+const CHANGE_LABELS = {
+  CONFLICT: '기존 정보와 상충',
+  NEEDS_CONFIRMATION: '추가 확인 필요',
+  SPECIFIED: '기존 계획과 다른 공개정보',
+  NEW_INFO: '신규 공개정보 발견',
+};
+
+const STATUS_LABELS = {
+  CONFIRMED: '근거 확인됨',
+  PENDING: '상담 확인 필요',
+  NO_CHANGE_EVIDENCE: '변경 근거 없음',
+  RETRIEVAL_FAILED: '조회 실패',
+};
+
 const STEP_LABELS = ['기업 입력', '정보 비교', 'Gap 및 질문', '답변 저장'];
 
 function App() {
@@ -53,6 +67,8 @@ function App() {
     return analysis.gaps.flatMap((gap) => gap.questions.map((question, index) => ({
       key: `${gap.gapType}-${index}`,
       gapType: gap.gapType,
+      changeType: gap.changeType,
+      displayLabel: gap.displayLabel,
       domain: gapDomain(gap.gapType),
       planId: findPlanId(companies, selectedId, gapDomain(gap.gapType)),
       questionText: question,
@@ -139,7 +155,7 @@ function App() {
 
       setConsultations(await getConsultations(selectedId));
       setAnswerDrafts({});
-      setSaveMessage('상담 질문과 답변을 DB에 저장했습니다. 다음 분석에서 이 답변이 RM 확인 정보로 재사용됩니다.');
+      setSaveMessage('상담 질문과 답변을 DB에 저장했습니다. 다음 분석부터 이 답변이 RM 확인 정보로 재사용됩니다.');
     } catch (saveError) {
       setError(saveError.message);
     } finally {
@@ -231,7 +247,7 @@ function CompanyInputPage({ query, setQuery, companies, loadingCompanies, loadin
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             list="company-options"
-            placeholder="예: 고려아연, 롯데케미칼"
+            placeholder="예: 동화약품, KR모터스"
             autoComplete="off"
           />
           <button type="submit" disabled={loadingCompanies || loadingAnalysis || !query.trim()}>
@@ -252,19 +268,28 @@ function CompanyInputPage({ query, setQuery, companies, loadingCompanies, loadin
 }
 
 function ComparisonPage({ company, analysis, consultations, onNext }) {
+  const summary = summarizeGaps(analysis.gaps);
+
   return (
     <div className="page-panel">
       <PageHeader
         eyebrow="PAGE 1"
         title="DB 정보와 API 정보를 한눈에 비교"
-        description="RM이 보유한 기존 고객정보, OpenDART 기업코드, 재무정보, 최근 상담 이력을 같은 화면에서 확인합니다."
+        description="RM이 보유한 기존 고객정보와 OpenDART 조회 결과를 같은 화면에서 확인합니다."
       />
+
+      <section className="judgement-summary" aria-label="판정 요약">
+        <SummaryTile label="전체 후보" value={`${analysis.gaps.length}건`} />
+        <SummaryTile label="기존 정보와 상충" value={`${summary.CONFLICT || 0}건`} tone="high" />
+        <SummaryTile label="추가 확인 필요" value={`${summary.NEEDS_CONFIRMATION || 0}건`} tone="medium" />
+        <SummaryTile label="신규/상세 정보" value={`${(summary.NEW_INFO || 0) + (summary.SPECIFIED || 0)}건`} tone="low" />
+      </section>
 
       <div className="comparison-layout">
         <section className="info-column">
           <h2>{company.companyName} DB 정보</h2>
           <dl className="info-grid">
-            <InfoItem label="최근 상담일" value={company.consultationDate} />
+            <InfoItem label="최근 상담일" value={company.consultationDate || '확인된 정보 없음'} />
             <InfoItem label="투자계획" value={company.investmentPlan || '확인된 정보 없음'} />
             <InfoItem label="자금조달계획" value={company.fundingPlan || '확인된 정보 없음'} />
             <InfoItem label="해외사업계획" value={company.foreignBusinessPlan || '확인된 정보 없음'} />
@@ -308,8 +333,8 @@ function GapQuestionPage({ analysis, onPrev, onNext }) {
     <div className="page-panel">
       <PageHeader
         eyebrow="PAGE 2"
-        title="변경 후보와 다음 상담 질문"
-        description="공개정보와 RM 기존 정보가 어긋날 가능성이 있는 항목을 확인하고, 다음 상담에서 물어볼 질문을 검토합니다."
+        title="무엇이 달라졌고 무엇을 물어봐야 하는지"
+        description="판정 유형별로 기존 RM 정보, 최신 공개정보, 판단 이유, 후속 질문을 묶어서 보여줍니다."
       />
 
       {analysis.gaps.length === 0 ? (
@@ -320,11 +345,23 @@ function GapQuestionPage({ analysis, onPrev, onNext }) {
       ) : (
         <div className="gap-list">
           {analysis.gaps.map((gap) => (
-            <article className="gap-card" key={gap.gapType}>
+            <article className={`gap-card severity-${(gap.severity || 'LOW').toLowerCase()}`} key={gap.gapType}>
               <div className="gap-card-header">
-                <span>{GAP_LABELS[gap.gapType] || gap.gapType}</span>
-                <strong>{gap.explanationSource}</strong>
+                <div>
+                  <span>{GAP_LABELS[gap.gapType] || gap.gapType}</span>
+                  <p>{DOMAIN_LABELS[gapDomain(gap.gapType)]}</p>
+                </div>
+                <div className="badge-row">
+                  <strong className={`change-badge ${badgeClass(gap.changeType)}`}>{gap.displayLabel || CHANGE_LABELS[gap.changeType] || '확인 필요'}</strong>
+                  <strong className="status-badge">{STATUS_LABELS[gap.assessmentStatus] || gap.assessmentStatus}</strong>
+                </div>
               </div>
+
+              <div className="judgement-line">
+                <strong>판단</strong>
+                <span>{judgementSentence(gap)}</span>
+              </div>
+
               <div className="before-after">
                 <div>
                   <h3>DB/RM 기존 정보</h3>
@@ -336,11 +373,11 @@ function GapQuestionPage({ analysis, onPrev, onNext }) {
                 </div>
               </div>
               <div className="reason-box">
-                <h3>변경 후보 판단</h3>
+                <h3>판정 근거</h3>
                 <p>{gap.reason}</p>
               </div>
               <div className="question-box">
-                <h3>상담 질문</h3>
+                <h3>다음 상담 질문</h3>
                 <ol>
                   {gap.questions.map((question) => <li key={question}>{question}</li>)}
                 </ol>
@@ -368,14 +405,14 @@ function AnswerPage({ questions, answerDrafts, setAnswerDrafts, consultations, s
       {questions.length === 0 ? (
         <div className="empty-box">
           <h2>저장할 질문이 없습니다</h2>
-          <p>이번 분석에서 생성된 질문이 없어서 답변 저장 단계가 비어 있습니다.</p>
+          <p>이번 분석에서 생성된 질문이 없어 답변 저장 단계가 비어 있습니다.</p>
         </div>
       ) : (
         <div className="answer-list">
           {questions.map((question, index) => (
             <article className="answer-item" key={question.key}>
               <div className="answer-question">
-                <span>{DOMAIN_LABELS[question.domain]} 질문 {index + 1}</span>
+                <span>{DOMAIN_LABELS[question.domain]} 질문 {index + 1} · {question.displayLabel}</span>
                 <p>{question.questionText}</p>
               </div>
               <textarea
@@ -414,6 +451,15 @@ function AnswerPage({ questions, answerDrafts, setAnswerDrafts, consultations, s
         saveLabel={savingAnswers ? '저장 중' : 'DB에 답변 저장'}
         saveDisabled={savingAnswers || questions.length === 0}
       />
+    </div>
+  );
+}
+
+function SummaryTile({ label, value, tone }) {
+  return (
+    <div className={`summary-tile ${tone ? `tone-${tone}` : ''}`}>
+      <span>{label}</span>
+      <strong>{value}</strong>
     </div>
   );
 }
@@ -485,6 +531,34 @@ function EvidenceList({ evidence }) {
   );
 }
 
+function summarizeGaps(gaps = []) {
+  return gaps.reduce((acc, gap) => {
+    const key = gap.changeType || 'UNKNOWN';
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+}
+
+function judgementSentence(gap) {
+  if (gap.changeType === 'CONFLICT') {
+    return '기존 RM 정보와 공개정보가 서로 다를 가능성이 커서 우선 확인해야 합니다.';
+  }
+  if (gap.changeType === 'NEEDS_CONFIRMATION') {
+    return '기존 정보와 완전히 충돌한다고 보기는 어렵지만 상담에서 진행 상태를 확인해야 합니다.';
+  }
+  if (gap.changeType === 'SPECIFIED') {
+    return '기존 계획과 다른 범위의 공개정보가 발견되어 동일 건인지 신규 건인지 확인해야 합니다.';
+  }
+  return 'RM 정보에 없던 공개정보가 발견되어 후속 상담에서 확인할 필요가 있습니다.';
+}
+
+function badgeClass(changeType) {
+  if (changeType === 'CONFLICT') return 'badge-high';
+  if (changeType === 'NEEDS_CONFIRMATION') return 'badge-medium';
+  if (changeType === 'SPECIFIED') return 'badge-medium';
+  return 'badge-low';
+}
+
 function resolveCompany(companies, query) {
   const normalized = normalize(query);
   return companies.find((company) => normalize(company.companyName) === normalized)
@@ -505,7 +579,7 @@ function gapDomain(gapType) {
 
 function inferPlanStatus(answerText) {
   const normalized = normalize(answerText);
-  if (normalized.includes('없') || normalized.includes('아니')) return 'NOT_APPLICABLE';
+  if (normalized.includes('없음') || normalized.includes('아니')) return 'NOT_APPLICABLE';
   if (normalized.includes('완료')) return 'COMPLETED';
   if (normalized.includes('취소') || normalized.includes('철회')) return 'CANCELED';
   if (normalized.includes('진행')) return 'IN_PROGRESS';
