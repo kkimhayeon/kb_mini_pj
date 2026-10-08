@@ -8,6 +8,8 @@ public record FinancialSnapshot(
         BigDecimal operatingProfit,
         BigDecimal shortTermDebt,
         BigDecimal priorPeriodShortTermDebt,
+        BigDecimal totalDebt,
+        BigDecimal priorPeriodTotalDebt,
         BigDecimal operatingCashFlow
 ) {
 }

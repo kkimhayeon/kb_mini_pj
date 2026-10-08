@@ -2,31 +2,23 @@ spring:
   application:
     name: springboot
   config:
-    # 루트 .env 를 읽는다 (backend/springboot 또는 저장소 루트에서 실행하는 경우 모두)
-    import:
-      - optional:file:.env[.properties]
-      - optional:file:../../.env[.properties]
+    import: optional:file:../../.env[.properties]
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:gap_agent}
-    username: ${DB_USERNAME:gap}
-    password: ${DB_PASSWORD:gap}
-  jpa:
-    hibernate:
-      # 스키마는 db/schema.sql 로 관리한다. Hibernate 는 검증만 한다
-      ddl-auto: validate
-    open-in-view: false
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:kb_gap}}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: always
 
 dart:
   api:
     key: ${DART_API_KEY:}
     base-url: https://opendart.fss.or.kr/api
 
-gemini:
+openai:
   api:
-    key: ${GEMINI_API_KEY:}
-    base-url: https://generativelanguage.googleapis.com
-    model: ${GEMINI_MODEL:gemini-2.5-flash}
-
-rm:
-  data:
-    path: ${RM_DATA_PATH:../../RM_Prior_Knowledge_100.csv}
+    key: ${OPEN_API_KEY:}
+    base-url: https://api.openai.com
+    model: ${OPENAI_MODEL:gpt-4o-mini}

@@ -11,6 +11,10 @@ public record GapResult(
         String reason,
         String explanationSource,
         List<DisclosureEvidence> evidence,
-        List<String> questions
+        List<String> questions,
+        String domain,
+        String planId,
+        String changeType,
+        String priority
 ) {
 }

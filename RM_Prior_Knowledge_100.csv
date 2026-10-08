@@ -1,101 +1,247 @@
-company_id,company_name,consultation_date,investment_plan,funding_plan,foreign_business,rm_memo
-1,한빛전자,2026-01-08,없음,없음,없음,현재 신규 설비투자 계획 없음
-2,대한정밀,2026-01-12,생산설비 투자 검토,없음,없음,생산라인 증설 가능성 검토 중
-3,미래소재,2026-01-15,없음,차입 예정,없음,운전자금 부족 가능성 있어 차입 검토
-4,세종테크,2026-01-18,신규공장 투자 예정,차입 예정,없음,공장 신설을 위한 자금조달 계획 있음
-5,한국바이오,2026-01-20,없음,없음,해외진출 검토,미국 시장 진출 가능성 검토
-6,동아산업,2026-01-23,없음,없음,없음,올해 특별한 투자계획 없음
-7,에이스모터스,2026-01-27,생산설비 투자 예정,없음,수출 확대,자동차 부품 생산시설 확대 예정
-8,삼우화학,2026-02-01,없음,회사채 발행 검토,없음,대규모 자금조달 가능성 있음
-9,한성건설,2026-02-04,신규사업 투자,차입 예정,없음,신규 사업 진출에 따른 자금 필요
-10,그린에너지,2026-02-07,태양광 설비 투자,없음,해외사업 확대,친환경 사업 확대 추진
-11,동양기계,2026-02-10,없음,없음,없음,현재 자금수요 특별히 없음
-12,신라식품,2026-02-13,공장 증설 검토,없음,수출 확대,해외 매출 증가 예상
-13,한국물산,2026-02-16,없음,운전자금 차입 예정,없음,운전자금 확보 필요
-14,대성전기,2026-02-19,설비교체 예정,없음,없음,노후 설비 교체 계획
-15,한강테크,2026-02-22,없음,없음,해외법인 검토,동남아 시장 진출 가능성 검토
-16,태성금속,2026-02-25,생산라인 증설,차입 예정,수출 확대,생산량 확대를 위한 투자 및 차입 계획
-17,우리산업,2026-02-28,없음,없음,없음,사업 안정화에 집중
-18,대륙전자,2026-03-02,신규 연구소 설립,없음,없음,R&D 투자 확대 계획
-19,한미정공,2026-03-05,없음,회사채 발행 예정,수출 확대,해외 매출 증가에 대비한 자금 확보
-20,금호소재,2026-03-08,공장 이전 계획,차입 예정,없음,생산시설 이전에 자금 필요
-21,서울바이오,2026-03-11,신약 연구 투자,없음,해외진출 검토,연구개발 투자 지속 예정
-22,대신전자,2026-03-14,없음,없음,없음,신규 투자계획 없음
-23,동진산업,2026-03-17,생산설비 투자 검토,운전자금 필요,없음,생산 증가에 따른 운전자금 필요
-24,한라기계,2026-03-20,자동화 설비 투자,없음,수출 확대,공장 자동화 추진
-25,미래건설,2026-03-23,신규 프로젝트 투자,프로젝트파이낸싱 검토,없음,신규 개발사업 자금 검토
-26,세원화학,2026-03-26,없음,없음,해외법인 설립 검토,중국 시장 진출 검토
-27,대한식품,2026-03-29,공장 증설,차입 예정,수출 확대,수출 물량 증가에 따른 생산 확대
-28,하나전기,2026-04-01,없음,운전자금 차입 예정,없음,원재료 가격 상승으로 자금 필요
-29,태광산업,2026-04-04,설비 투자 예정,없음,없음,설비 효율화 투자 계획
-30,한빛건설,2026-04-07,없음,차입 예정,해외사업 검토,해외 건설 프로젝트 참여 검토
-31,동국모터스,2026-04-10,전기차 부품 설비 투자,차입 예정,수출 확대,전기차 부품 생산 확대
-32,삼성정밀,2026-04-13,없음,없음,없음,기존 사업 유지 계획
-33,대우소재,2026-04-16,신규공장 투자,회사채 발행 검토,해외사업 확대,해외 생산거점 확보 검토
-34,한성전자,2026-04-19,연구개발 투자,없음,없음,신규 제품 개발 추진
-35,우리바이오,2026-04-22,없음,차입 예정,해외진출 검토,해외 임상시험 자금 검토
-36,동아기계,2026-04-25,생산설비 교체,없음,없음,노후 생산설비 교체 예정
-37,미래산업,2026-04-28,없음,없음,수출 확대,해외 거래처 확대 추진
-38,대한금속,2026-05-01,공장 증설,차입 예정,없음,생산능력 확대 필요
-39,세종전자,2026-05-04,신규 생산라인 구축,없음,수출 확대,신규 생산라인을 통한 수출 확대 계획
-40,한강산업,2026-05-07,없음,운전자금 필요,없음,매출 증가에 따른 운전자금 필요
-41,대성바이오,2026-05-10,연구시설 투자,없음,해외진출 검토,R&D 및 해외진출 준비
-42,한국정밀,2026-05-13,없음,회사채 발행 예정,없음,장기 투자자금 조달 예정
-43,동양전자,2026-05-16,설비 투자 검토,없음,없음,설비 효율 개선 검토
-44,한미산업,2026-05-19,신규공장 예정,차입 예정,수출 확대,수출 증가에 대응한 생산시설 확대
-45,그린테크,2026-05-22,친환경 설비 투자,없음,해외사업 확대,친환경 제품 해외 판매 확대
-46,태성전자,2026-05-25,없음,없음,없음,현재 특별한 자금수요 없음
-47,세원기계,2026-05-28,자동화 설비 투자,차입 예정,없음,스마트공장 전환 추진
-48,대한바이오,2026-05-31,신약개발 투자,회사채 발행 검토,해외진출 검토,연구개발 및 해외시장 진출 자금 필요
-49,한빛소재,2026-06-03,없음,운전자금 차입 예정,수출 확대,수출 증가로 운전자금 필요
-50,대륙산업,2026-06-06,생산라인 확대,없음,없음,생산량 증가 대응
-51,서울정밀,2026-06-09,공장 이전,차입 예정,없음,공장 이전 비용 조달 필요
-52,미래전자,2026-06-12,없음,없음,해외법인 설립 검토,동남아 시장 진출 가능성
-53,동진화학,2026-06-15,환경설비 투자,없음,없음,환경규제 대응 설비 투자
-54,한성모터스,2026-06-18,전기차 설비 투자,차입 예정,수출 확대,전기차 부품 수출 확대
-55,대성건설,2026-06-21,신규 프로젝트 투자,프로젝트파이낸싱 검토,해외사업 확대,해외 개발사업 진출 검토
-56,우리식품,2026-06-24,공장 증설,없음,수출 확대,식품 수출 증가 대응
-57,태광전자,2026-06-27,없음,없음,없음,사업 안정화 계획
-58,한국산업,2026-06-30,설비 교체,운전자금 필요,없음,생산설비 교체 및 운전자금 확보
-59,한라소재,2026-07-03,신규공장 검토,차입 예정,해외사업 검토,국내외 생산시설 확대 검토
-60,세종바이오,2026-07-06,연구개발 투자,없음,해외진출 검토,해외 임상 및 연구개발 추진
-61,동아전자,2026-07-09,없음,회사채 발행 검토,없음,장기 운영자금 확보 검토
-62,미래정밀,2026-07-12,생산설비 투자,차입 예정,수출 확대,수출 주문 증가에 대응
-63,대한전기,2026-07-15,자동화 설비 투자,없음,없음,생산성 향상을 위한 자동화
-64,그린산업,2026-07-18,친환경 설비 투자,차입 예정,해외사업 확대,친환경 제품 해외 진출
-65,한빛건설,2026-07-21,없음,차입 예정,없음,프로젝트 자금 필요 가능성
-66,대륙바이오,2026-07-24,신약 연구 투자,회사채 발행 검토,해외진출 검토,신약개발 자금 확보 필요
-67,세원전자,2026-07-27,없음,없음,수출 확대,해외 거래처 신규 확보
-68,태성산업,2026-07-30,공장 증설,차입 예정,없음,생산능력 확대 추진
-69,우리정밀,2026-08-02,설비 교체,없음,없음,생산설비 노후화 대응
-70,한국소재,2026-08-05,없음,운전자금 필요,수출 확대,수출 증가로 운영자금 필요
-71,한미전자,2026-08-08,신규 연구소 설립,없음,해외진출 검토,R&D와 해외사업 동시 추진
-72,동국산업,2026-08-11,생산라인 확대,회사채 발행 예정,수출 확대,생산시설 및 수출 확대
-73,서울바이오,2026-08-14,없음,차입 예정,해외사업 확대,해외법인 설립에 따른 자금 검토
-74,대성정밀,2026-08-17,자동화 설비 투자,없음,없음,스마트공장 전환 계획
-75,미래건설,2026-08-20,신규사업 투자,차입 예정,해외사업 검토,신규 개발사업 및 해외사업 검토
-76,한강전자,2026-08-23,없음,없음,없음,현재 신규 사업계획 없음
-77,대한산업,2026-08-26,공장 증설,운전자금 필요,수출 확대,수출 물량 증가 대응
-78,세종소재,2026-08-29,환경설비 투자,차입 예정,없음,환경설비 투자자금 필요
-79,동양바이오,2026-09-01,연구개발 투자,회사채 발행 검토,해외진출 검토,연구개발 및 해외진출 자금 확보
-80,한성산업,2026-09-04,없음,없음,해외사업 검토,동남아 사업 진출 검토
-81,그린전자,2026-09-07,신규 생산라인,차입 예정,수출 확대,수출 증가에 따른 생산시설 투자
-82,태광소재,2026-09-10,없음,운전자금 필요,없음,원자재 가격 상승 대응
-83,우리건설,2026-09-13,신규 프로젝트 투자,프로젝트파이낸싱 검토,없음,신규 개발사업 추진
-84,한국바이오,2026-09-16,신약 연구 투자,없음,해외진출 검토,해외 임상시험 확대
-85,미래산업,2026-09-19,생산설비 투자,차입 예정,수출 확대,생산량과 수출 확대 계획
-86,대륙전자,2026-09-22,없음,회사채 발행 예정,없음,장기 운영자금 조달
-87,대한정밀,2026-09-25,자동화 설비 투자,없음,수출 확대,스마트공장과 수출 확대 추진
-88,한빛화학,2026-09-28,환경설비 투자,차입 예정,없음,환경규제 대응
-89,세원산업,2026-10-01,공장 이전,없음,해외사업 확대,생산거점 재편 및 해외사업 확대
-90,동진전자,2026-10-02,없음,없음,없음,현재 신규 투자계획 없음
-91,한라바이오,2026-10-03,연구개발 투자,차입 예정,해외진출 검토,신약개발과 해외시장 진출
-92,대성산업,2026-10-04,생산라인 증설,회사채 발행 검토,수출 확대,생산 및 수출 확대를 위한 투자
-93,서울전자,2026-10-05,없음,운전자금 필요,없음,매출 증가에 따른 운전자금 필요
-94,미래소재,2026-10-05,신규공장 투자,차입 예정,해외사업 확대,국내외 생산시설 확대
-95,한국전기,2026-10-06,설비 교체,없음,수출 확대,노후 설비 교체와 수출 확대
-96,그린바이오,2026-10-06,신규 연구시설,회사채 발행 검토,해외진출 검토,연구시설 투자 및 해외시장 진출
-97,태성정밀,2026-10-06,없음,없음,없음,현재 대규모 투자계획 없음
-98,한미산업,2026-10-07,생산설비 투자,차입 예정,해외사업 확대,생산시설 및 해외사업 확대
-99,동국전자,2026-10-07,자동화 설비 투자,없음,수출 확대,자동화 및 수출 확대 추진
-100,세종산업,2026-10-07,없음,운전자금 차입 예정,해외사업 검토,해외사업 진출 가능성 검토
+"company_id","corp_code","company_name","consultation_date","domain","plan_id","scope","knowledge_status","plan_status","last_confirmed_at","amount","currency","expected_at","expected_at_precision","source","evidence_level","source_reference","valid_until","review_due_at","validity_status","recorded_at","note","rm_memo"
+"2","00119195","동화약품","2026-01-12","INVESTMENT","investment-1","생산설비 투자 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산라인 증설 가능성 검토 중"
+"2","00119195","동화약품","2026-01-12","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산라인 증설 가능성 검토 중"
+"2","00119195","동화약품","2026-01-12","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산라인 증설 가능성 검토 중"
+"4","00112378","KR모터스","2026-01-18","INVESTMENT","investment-1","신규공장 투자 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"공장 신설을 위한 자금조달 계획 있음"
+"4","00112378","KR모터스","2026-01-18","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"공장 신설을 위한 자금조달 계획 있음"
+"4","00112378","KR모터스","2026-01-18","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"공장 신설을 위한 자금조달 계획 있음"
+"5","00101628","경방","2026-01-20","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"미국 시장 진출 가능성 검토"
+"5","00101628","경방","2026-01-20","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"미국 시장 진출 가능성 검토"
+"5","00101628","경방","2026-01-20","FOREIGN_BUSINESS","foreign_business-1","해외진출 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"미국 시장 진출 가능성 검토"
+"7","00126937","삼양홀딩스","2026-01-27","INVESTMENT","investment-1","생산설비 투자 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"자동차 부품 생산시설 확대 예정"
+"7","00126937","삼양홀딩스","2026-01-27","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"자동차 부품 생산시설 확대 예정"
+"7","00126937","삼양홀딩스","2026-01-27","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"자동차 부품 생산시설 확대 예정"
+"8","00150244","하이트진로","2026-02-01","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"대규모 자금조달 가능성 있음"
+"8","00150244","하이트진로","2026-02-01","FUNDING","funding-1","회사채 발행 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"대규모 자금조달 가능성 있음"
+"8","00150244","하이트진로","2026-02-01","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"대규모 자금조달 가능성 있음"
+"9","00145109","유한양행","2026-02-04","INVESTMENT","investment-1","신규사업 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 사업 진출에 따른 자금 필요"
+"9","00145109","유한양행","2026-02-04","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 사업 진출에 따른 자금 필요"
+"9","00145109","유한양행","2026-02-04","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 사업 진출에 따른 자금 필요"
+"11","00113410","CJ대한통운","2026-02-10","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"현재 자금수요 특별히 없음"
+"11","00113410","CJ대한통운","2026-02-10","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"현재 자금수요 특별히 없음"
+"11","00113410","CJ대한통운","2026-02-10","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"현재 자금수요 특별히 없음"
+"12","00148993","하이트진로홀딩스","2026-02-13","INVESTMENT","investment-1","공장 증설 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 매출 증가 예상"
+"12","00148993","하이트진로홀딩스","2026-02-13","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 매출 증가 예상"
+"12","00148993","하이트진로홀딩스","2026-02-13","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 매출 증가 예상"
+"13","00117212","두산","2026-02-16","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"운전자금 확보 필요"
+"13","00117212","두산","2026-02-16","FUNDING","funding-1","운전자금 차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"운전자금 확보 필요"
+"13","00117212","두산","2026-02-16","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"운전자금 확보 필요"
+"14","00133335","성창기업지주","2026-02-19","INVESTMENT","investment-1","설비교체 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"노후 설비 교체 계획"
+"14","00133335","성창기업지주","2026-02-19","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"노후 설비 교체 계획"
+"14","00133335","성창기업지주","2026-02-19","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"노후 설비 교체 계획"
+"15","01516933","덕양에너젠","2026-02-22","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"동남아 시장 진출 가능성 검토"
+"15","01516933","덕양에너젠","2026-02-22","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"동남아 시장 진출 가능성 검토"
+"15","01516933","덕양에너젠","2026-02-22","FOREIGN_BUSINESS","foreign_business-1","해외법인 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"동남아 시장 진출 가능성 검토"
+"16","00109693","DL","2026-02-25","INVESTMENT","investment-1","생산라인 증설","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산량 확대를 위한 투자 및 차입 계획"
+"16","00109693","DL","2026-02-25","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산량 확대를 위한 투자 및 차입 계획"
+"16","00109693","DL","2026-02-25","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산량 확대를 위한 투자 및 차입 계획"
+"17","00144818","유유제약","2026-02-28","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"사업 안정화에 집중"
+"17","00144818","유유제약","2026-02-28","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"사업 안정화에 집중"
+"17","00144818","유유제약","2026-02-28","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"사업 안정화에 집중"
+"18","00146083","일동홀딩스","2026-03-02","INVESTMENT","investment-1","신규 연구소 설립","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"R&D 투자 확대 계획"
+"18","00146083","일동홀딩스","2026-03-02","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"R&D 투자 확대 계획"
+"18","00146083","일동홀딩스","2026-03-02","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"R&D 투자 확대 계획"
+"19","00160047","한국앤컴퍼니","2026-03-05","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 매출 증가에 대비한 자금 확보"
+"19","00160047","한국앤컴퍼니","2026-03-05","FUNDING","funding-1","회사채 발행 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 매출 증가에 대비한 자금 확보"
+"19","00160047","한국앤컴퍼니","2026-03-05","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 매출 증가에 대비한 자금 확보"
+"20","00128546","삼천당제약","2026-03-08","INVESTMENT","investment-1","공장 이전 계획","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산시설 이전에 자금 필요"
+"20","00128546","삼천당제약","2026-03-08","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산시설 이전에 자금 필요"
+"20","00128546","삼천당제약","2026-03-08","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산시설 이전에 자금 필요"
+"21","00106641","기아","2026-03-11","INVESTMENT","investment-1","신약 연구 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"연구개발 투자 지속 예정"
+"21","00106641","기아","2026-03-11","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"연구개발 투자 지속 예정"
+"21","00106641","기아","2026-03-11","FOREIGN_BUSINESS","foreign_business-1","해외진출 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"연구개발 투자 지속 예정"
+"22","00126089","DH오토넥스","2026-03-14","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 투자계획 없음"
+"22","00126089","DH오토넥스","2026-03-14","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 투자계획 없음"
+"22","00126089","DH오토넥스","2026-03-14","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 투자계획 없음"
+"23","00113508","노루홀딩스","2026-03-17","INVESTMENT","investment-1","생산설비 투자 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산 증가에 따른 운전자금 필요"
+"23","00113508","노루홀딩스","2026-03-17","FUNDING","funding-1","운전자금 필요","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산 증가에 따른 운전자금 필요"
+"23","00113508","노루홀딩스","2026-03-17","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산 증가에 따른 운전자금 필요"
+"25","00135917","한화손해보험","2026-03-23","INVESTMENT","investment-1","신규 프로젝트 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 개발사업 자금 검토"
+"25","00135917","한화손해보험","2026-03-23","FUNDING","funding-1","프로젝트파이낸싱 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 개발사업 자금 검토"
+"25","00135917","한화손해보험","2026-03-23","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 개발사업 자금 검토"
+"27","00129387","SP삼화","2026-03-29","INVESTMENT","investment-1","공장 증설","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 물량 증가에 따른 생산 확대"
+"27","00129387","SP삼화","2026-03-29","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 물량 증가에 따른 생산 확대"
+"27","00129387","SP삼화","2026-03-29","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 물량 증가에 따른 생산 확대"
+"28","00113562","롯데손해보험","2026-04-01","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"원재료 가격 상승으로 자금 필요"
+"28","00113562","롯데손해보험","2026-04-01","FUNDING","funding-1","운전자금 차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"원재료 가격 상승으로 자금 필요"
+"28","00113562","롯데손해보험","2026-04-01","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"원재료 가격 상승으로 자금 필요"
+"30","00111847","대원강업","2026-04-07","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 건설 프로젝트 참여 검토"
+"30","00111847","대원강업","2026-04-07","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 건설 프로젝트 참여 검토"
+"30","00111847","대원강업","2026-04-07","FOREIGN_BUSINESS","foreign_business-1","해외사업 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 건설 프로젝트 참여 검토"
+"31","00149770","중앙에너비스","2026-04-10","INVESTMENT","investment-1","전기차 부품 설비 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"전기차 부품 생산 확대"
+"31","00149770","중앙에너비스","2026-04-10","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"전기차 부품 생산 확대"
+"31","00149770","중앙에너비스","2026-04-10","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"전기차 부품 생산 확대"
+"33","00148984","시알홀딩스","2026-04-16","INVESTMENT","investment-1","신규공장 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 생산거점 확보 검토"
+"33","00148984","시알홀딩스","2026-04-16","FUNDING","funding-1","회사채 발행 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 생산거점 확보 검토"
+"33","00148984","시알홀딩스","2026-04-16","FOREIGN_BUSINESS","foreign_business-1","해외사업 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 생산거점 확보 검토"
+"34","00109286","대동","2026-04-19","INVESTMENT","investment-1","연구개발 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 제품 개발 추진"
+"34","00109286","대동","2026-04-19","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 제품 개발 추진"
+"34","00109286","대동","2026-04-19","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 제품 개발 추진"
+"35","00924931","엔비알모션","2026-04-22","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 임상시험 자금 검토"
+"35","00924931","엔비알모션","2026-04-22","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 임상시험 자금 검토"
+"35","00924931","엔비알모션","2026-04-22","FOREIGN_BUSINESS","foreign_business-1","해외진출 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 임상시험 자금 검토"
+"36","01884065","디비금융제14호스팩","2026-04-25","INVESTMENT","investment-1","생산설비 교체","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"노후 생산설비 교체 예정"
+"36","01884065","디비금융제14호스팩","2026-04-25","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"노후 생산설비 교체 예정"
+"36","01884065","디비금융제14호스팩","2026-04-25","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"노후 생산설비 교체 예정"
+"37","00104768","가온전선","2026-04-28","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 거래처 확대 추진"
+"37","00104768","가온전선","2026-04-28","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 거래처 확대 추진"
+"37","00104768","가온전선","2026-04-28","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 거래처 확대 추진"
+"38","00128032","삼일제약","2026-05-01","INVESTMENT","investment-1","공장 증설","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산능력 확대 필요"
+"38","00128032","삼일제약","2026-05-01","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산능력 확대 필요"
+"38","00128032","삼일제약","2026-05-01","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산능력 확대 필요"
+"39","00103176","흥국화재","2026-05-04","INVESTMENT","investment-1","신규 생산라인 구축","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 생산라인을 통한 수출 확대 계획"
+"39","00103176","흥국화재","2026-05-04","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 생산라인을 통한 수출 확대 계획"
+"39","00103176","흥국화재","2026-05-04","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 생산라인을 통한 수출 확대 계획"
+"40","00149026","CS홀딩스","2026-05-07","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"매출 증가에 따른 운전자금 필요"
+"40","00149026","CS홀딩스","2026-05-07","FUNDING","funding-1","운전자금 필요","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"매출 증가에 따른 운전자금 필요"
+"40","00149026","CS홀딩스","2026-05-07","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"매출 증가에 따른 운전자금 필요"
+"42","00116824","동아쏘시오홀딩스","2026-05-13","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"장기 투자자금 조달 예정"
+"42","00116824","동아쏘시오홀딩스","2026-05-13","FUNDING","funding-1","회사채 발행 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"장기 투자자금 조달 예정"
+"42","00116824","동아쏘시오홀딩스","2026-05-13","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"장기 투자자금 조달 예정"
+"43","00151395","천일고속","2026-05-16","INVESTMENT","investment-1","설비 투자 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"설비 효율 개선 검토"
+"43","00151395","천일고속","2026-05-16","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"설비 효율 개선 검토"
+"43","00151395","천일고속","2026-05-16","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"설비 효율 개선 검토"
+"44","00164779","SK하이닉스","2026-05-19","INVESTMENT","investment-1","신규공장 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 증가에 대응한 생산시설 확대"
+"44","00164779","SK하이닉스","2026-05-19","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 증가에 대응한 생산시설 확대"
+"44","00164779","SK하이닉스","2026-05-19","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 증가에 대응한 생산시설 확대"
+"45","00141307","영풍","2026-05-22","INVESTMENT","investment-1","친환경 설비 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"친환경 제품 해외 판매 확대"
+"45","00141307","영풍","2026-05-22","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"친환경 제품 해외 판매 확대"
+"45","00141307","영풍","2026-05-22","FOREIGN_BUSINESS","foreign_business-1","해외사업 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"친환경 제품 해외 판매 확대"
+"46","00104698","LS네트웍스","2026-05-25","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"현재 특별한 자금수요 없음"
+"46","00104698","LS네트웍스","2026-05-25","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"현재 특별한 자금수요 없음"
+"46","00104698","LS네트웍스","2026-05-25","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"현재 특별한 자금수요 없음"
+"47","00163691","유수홀딩스","2026-05-28","INVESTMENT","investment-1","자동화 설비 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"스마트공장 전환 추진"
+"47","00163691","유수홀딩스","2026-05-28","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"스마트공장 전환 추진"
+"47","00163691","유수홀딩스","2026-05-28","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"스마트공장 전환 추진"
+"48","00164478","현대건설","2026-05-31","INVESTMENT","investment-1","신약개발 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"연구개발 및 해외시장 진출 자금 필요"
+"48","00164478","현대건설","2026-05-31","FUNDING","funding-1","회사채 발행 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"연구개발 및 해외시장 진출 자금 필요"
+"48","00164478","현대건설","2026-05-31","FOREIGN_BUSINESS","foreign_business-1","해외진출 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"연구개발 및 해외시장 진출 자금 필요"
+"49","00145686","이화산업","2026-06-03","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 증가로 운전자금 필요"
+"49","00145686","이화산업","2026-06-03","FUNDING","funding-1","운전자금 차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 증가로 운전자금 필요"
+"49","00145686","이화산업","2026-06-03","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 증가로 운전자금 필요"
+"51","01829819","아크릴","2026-06-09","INVESTMENT","investment-1","공장 이전","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"공장 이전 비용 조달 필요"
+"51","01829819","아크릴","2026-06-09","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"공장 이전 비용 조달 필요"
+"51","01829819","아크릴","2026-06-09","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"공장 이전 비용 조달 필요"
+"52","01869710","인벤테라","2026-06-12","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"동남아 시장 진출 가능성"
+"52","01869710","인벤테라","2026-06-12","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"동남아 시장 진출 가능성"
+"52","01869710","인벤테라","2026-06-12","FOREIGN_BUSINESS","foreign_business-1","해외법인 설립 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"동남아 시장 진출 가능성"
+"54","00139214","삼성화재해상보험","2026-06-18","INVESTMENT","investment-1","전기차 설비 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"전기차 부품 수출 확대"
+"54","00139214","삼성화재해상보험","2026-06-18","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"전기차 부품 수출 확대"
+"54","00139214","삼성화재해상보험","2026-06-18","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"전기차 부품 수출 확대"
+"55","00126229","삼성물산","2026-06-21","INVESTMENT","investment-1","신규 프로젝트 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 개발사업 진출 검토"
+"55","00126229","삼성물산","2026-06-21","FUNDING","funding-1","프로젝트파이낸싱 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 개발사업 진출 검토"
+"55","00126229","삼성물산","2026-06-21","FOREIGN_BUSINESS","foreign_business-1","해외사업 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 개발사업 진출 검토"
+"56","00166519","화천기공","2026-06-24","INVESTMENT","investment-1","공장 증설","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"식품 수출 증가 대응"
+"56","00166519","화천기공","2026-06-24","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"식품 수출 증가 대응"
+"56","00166519","화천기공","2026-06-24","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"식품 수출 증가 대응"
+"57","00100939","강남제비스코","2026-06-27","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"사업 안정화 계획"
+"57","00100939","강남제비스코","2026-06-27","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"사업 안정화 계획"
+"57","00100939","강남제비스코","2026-06-27","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"사업 안정화 계획"
+"58","00160588","한화","2026-06-30","INVESTMENT","investment-1","설비 교체","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산설비 교체 및 운전자금 확보"
+"58","00160588","한화","2026-06-30","FUNDING","funding-1","운전자금 필요","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산설비 교체 및 운전자금 확보"
+"58","00160588","한화","2026-06-30","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산설비 교체 및 운전자금 확보"
+"59","00123541","보해양조","2026-07-03","INVESTMENT","investment-1","신규공장 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"국내외 생산시설 확대 검토"
+"59","00123541","보해양조","2026-07-03","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"국내외 생산시설 확대 검토"
+"59","00123541","보해양조","2026-07-03","FOREIGN_BUSINESS","foreign_business-1","해외사업 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"국내외 생산시설 확대 검토"
+"60","01294110","에스엔시스","2026-07-06","INVESTMENT","investment-1","연구개발 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 임상 및 연구개발 추진"
+"60","01294110","에스엔시스","2026-07-06","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 임상 및 연구개발 추진"
+"60","01294110","에스엔시스","2026-07-06","FOREIGN_BUSINESS","foreign_business-1","해외진출 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 임상 및 연구개발 추진"
+"61","00144252","유니온","2026-07-09","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"장기 운영자금 확보 검토"
+"61","00144252","유니온","2026-07-09","FUNDING","funding-1","회사채 발행 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"장기 운영자금 확보 검토"
+"61","00144252","유니온","2026-07-09","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"장기 운영자금 확보 검토"
+"62","00147222","전방","2026-07-12","INVESTMENT","investment-1","생산설비 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 주문 증가에 대응"
+"62","00147222","전방","2026-07-12","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 주문 증가에 대응"
+"62","00147222","전방","2026-07-12","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 주문 증가에 대응"
+"63","00159573","한국주철관공업","2026-07-15","INVESTMENT","investment-1","자동화 설비 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산성 향상을 위한 자동화"
+"63","00159573","한국주철관공업","2026-07-15","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산성 향상을 위한 자동화"
+"63","00159573","한국주철관공업","2026-07-15","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산성 향상을 위한 자동화"
+"64","00160843","DB하이텍","2026-07-18","INVESTMENT","investment-1","친환경 설비 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"친환경 제품 해외 진출"
+"64","00160843","DB하이텍","2026-07-18","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"친환경 제품 해외 진출"
+"64","00160843","DB하이텍","2026-07-18","FOREIGN_BUSINESS","foreign_business-1","해외사업 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"친환경 제품 해외 진출"
+"65","01781999","에임드바이오","2026-07-21","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"프로젝트 자금 필요 가능성"
+"65","01781999","에임드바이오","2026-07-21","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"프로젝트 자금 필요 가능성"
+"65","01781999","에임드바이오","2026-07-21","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"프로젝트 자금 필요 가능성"
+"66","00135999","신라섬유","2026-07-24","INVESTMENT","investment-1","신약 연구 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신약개발 자금 확보 필요"
+"66","00135999","신라섬유","2026-07-24","FUNDING","funding-1","회사채 발행 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신약개발 자금 확보 필요"
+"66","00135999","신라섬유","2026-07-24","FOREIGN_BUSINESS","foreign_business-1","해외진출 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신약개발 자금 확보 필요"
+"67","00134723","페이퍼코리아","2026-07-27","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 거래처 신규 확보"
+"67","00134723","페이퍼코리아","2026-07-27","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 거래처 신규 확보"
+"67","00134723","페이퍼코리아","2026-07-27","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 거래처 신규 확보"
+"68","00148540","CJ","2026-07-30","INVESTMENT","investment-1","공장 증설","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산능력 확대 추진"
+"68","00148540","CJ","2026-07-30","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산능력 확대 추진"
+"68","00148540","CJ","2026-07-30","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산능력 확대 추진"
+"69","00149947","JW중외제약","2026-08-02","INVESTMENT","investment-1","설비 교체","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산설비 노후화 대응"
+"69","00149947","JW중외제약","2026-08-02","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산설비 노후화 대응"
+"69","00149947","JW중외제약","2026-08-02","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산설비 노후화 대응"
+"70","00112970","대한방직","2026-08-05","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 증가로 운영자금 필요"
+"70","00112970","대한방직","2026-08-05","FUNDING","funding-1","운전자금 필요","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 증가로 운영자금 필요"
+"70","00112970","대한방직","2026-08-05","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 증가로 운영자금 필요"
+"71","00120872","만호제강","2026-08-08","INVESTMENT","investment-1","신규 연구소 설립","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"R&D와 해외사업 동시 추진"
+"71","00120872","만호제강","2026-08-08","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"R&D와 해외사업 동시 추진"
+"71","00120872","만호제강","2026-08-08","FOREIGN_BUSINESS","foreign_business-1","해외진출 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"R&D와 해외사업 동시 추진"
+"72","00871587","보원케미칼","2026-08-11","INVESTMENT","investment-1","생산라인 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산시설 및 수출 확대"
+"72","00871587","보원케미칼","2026-08-11","FUNDING","funding-1","회사채 발행 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산시설 및 수출 확대"
+"72","00871587","보원케미칼","2026-08-11","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산시설 및 수출 확대"
+"73","01867688","와이즈플래닛컴퍼니","2026-08-14","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외법인 설립에 따른 자금 검토"
+"73","01867688","와이즈플래닛컴퍼니","2026-08-14","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외법인 설립에 따른 자금 검토"
+"73","01867688","와이즈플래닛컴퍼니","2026-08-14","FOREIGN_BUSINESS","foreign_business-1","해외사업 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외법인 설립에 따른 자금 검토"
+"74","00185301","제이피아이헬스케어","2026-08-17","INVESTMENT","investment-1","자동화 설비 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"스마트공장 전환 계획"
+"74","00185301","제이피아이헬스케어","2026-08-17","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"스마트공장 전환 계획"
+"74","00185301","제이피아이헬스케어","2026-08-17","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"스마트공장 전환 계획"
+"75","00120076","LX인터내셔널","2026-08-20","INVESTMENT","investment-1","신규사업 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 개발사업 및 해외사업 검토"
+"75","00120076","LX인터내셔널","2026-08-20","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 개발사업 및 해외사업 검토"
+"75","00120076","LX인터내셔널","2026-08-20","FOREIGN_BUSINESS","foreign_business-1","해외사업 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 개발사업 및 해외사업 검토"
+"76","00113243","대한제분","2026-08-23","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"현재 신규 사업계획 없음"
+"76","00113243","대한제분","2026-08-23","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"현재 신규 사업계획 없음"
+"76","00113243","대한제분","2026-08-23","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"현재 신규 사업계획 없음"
+"80","01554508","액스비스","2026-09-04","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"동남아 사업 진출 검토"
+"80","01554508","액스비스","2026-09-04","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"동남아 사업 진출 검토"
+"80","01554508","액스비스","2026-09-04","FOREIGN_BUSINESS","foreign_business-1","해외사업 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"동남아 사업 진출 검토"
+"81","01279698","채비","2026-09-07","INVESTMENT","investment-1","신규 생산라인","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 증가에 따른 생산시설 투자"
+"81","01279698","채비","2026-09-07","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 증가에 따른 생산시설 투자"
+"81","01279698","채비","2026-09-07","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"수출 증가에 따른 생산시설 투자"
+"82","00131054","유진증권","2026-09-10","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"원자재 가격 상승 대응"
+"82","00131054","유진증권","2026-09-10","FUNDING","funding-1","운전자금 필요","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"원자재 가격 상승 대응"
+"82","00131054","유진증권","2026-09-10","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"원자재 가격 상승 대응"
+"83","00106395","금호전기","2026-09-13","INVESTMENT","investment-1","신규 프로젝트 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 개발사업 추진"
+"83","00106395","금호전기","2026-09-13","FUNDING","funding-1","프로젝트파이낸싱 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 개발사업 추진"
+"83","00106395","금호전기","2026-09-13","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"신규 개발사업 추진"
+"84","00114792","동국홀딩스","2026-09-16","INVESTMENT","investment-1","신약 연구 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 임상시험 확대"
+"84","00114792","동국홀딩스","2026-09-16","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 임상시험 확대"
+"84","00114792","동국홀딩스","2026-09-16","FOREIGN_BUSINESS","foreign_business-1","해외진출 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외 임상시험 확대"
+"85","00138190","GS글로벌","2026-09-19","INVESTMENT","investment-1","생산설비 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산량과 수출 확대 계획"
+"85","00138190","GS글로벌","2026-09-19","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산량과 수출 확대 계획"
+"85","00138190","GS글로벌","2026-09-19","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산량과 수출 확대 계획"
+"86","00107066","남광토건","2026-09-22","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"장기 운영자금 조달"
+"86","00107066","남광토건","2026-09-22","FUNDING","funding-1","회사채 발행 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"장기 운영자금 조달"
+"86","00107066","남광토건","2026-09-22","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"장기 운영자금 조달"
+"87","00123772","부국증권","2026-09-25","INVESTMENT","investment-1","자동화 설비 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"스마트공장과 수출 확대 추진"
+"87","00123772","부국증권","2026-09-25","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"스마트공장과 수출 확대 추진"
+"87","00123772","부국증권","2026-09-25","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"스마트공장과 수출 확대 추진"
+"89","00112059","상상인증권","2026-10-01","INVESTMENT","investment-1","공장 이전","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산거점 재편 및 해외사업 확대"
+"89","00112059","상상인증권","2026-10-01","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산거점 재편 및 해외사업 확대"
+"89","00112059","상상인증권","2026-10-01","FOREIGN_BUSINESS","foreign_business-1","해외사업 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산거점 재편 및 해외사업 확대"
+"92","00122472","PKC","2026-10-04","INVESTMENT","investment-1","생산라인 증설","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산 및 수출 확대를 위한 투자"
+"92","00122472","PKC","2026-10-04","FUNDING","funding-1","회사채 발행 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산 및 수출 확대를 위한 투자"
+"92","00122472","PKC","2026-10-04","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산 및 수출 확대를 위한 투자"
+"93","00126414","삼성제약","2026-10-05","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"매출 증가에 따른 운전자금 필요"
+"93","00126414","삼성제약","2026-10-05","FUNDING","funding-1","운전자금 필요","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"매출 증가에 따른 운전자금 필요"
+"93","00126414","삼성제약","2026-10-05","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"매출 증가에 따른 운전자금 필요"
+"95","00152039","SG글로벌","2026-10-06","INVESTMENT","investment-1","설비 교체","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"노후 설비 교체와 수출 확대"
+"95","00152039","SG글로벌","2026-10-06","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"노후 설비 교체와 수출 확대"
+"95","00152039","SG글로벌","2026-10-06","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"노후 설비 교체와 수출 확대"
+"96","00101220","KG케미칼","2026-10-06","INVESTMENT","investment-1","신규 연구시설","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"연구시설 투자 및 해외시장 진출"
+"96","00101220","KG케미칼","2026-10-06","FUNDING","funding-1","회사채 발행 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"연구시설 투자 및 해외시장 진출"
+"96","00101220","KG케미칼","2026-10-06","FOREIGN_BUSINESS","foreign_business-1","해외진출 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"연구시설 투자 및 해외시장 진출"
+"97","01370322","삼진식품","2026-10-06","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"현재 대규모 투자계획 없음"
+"97","01370322","삼진식품","2026-10-06","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"현재 대규모 투자계획 없음"
+"97","01370322","삼진식품","2026-10-06","FOREIGN_BUSINESS","foreign_business-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"현재 대규모 투자계획 없음"
+"98","00154055","태원물산","2026-10-07","INVESTMENT","investment-1","생산설비 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산시설 및 해외사업 확대"
+"98","00154055","태원물산","2026-10-07","FUNDING","funding-1","차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산시설 및 해외사업 확대"
+"98","00154055","태원물산","2026-10-07","FOREIGN_BUSINESS","foreign_business-1","해외사업 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"생산시설 및 해외사업 확대"
+"99","00106669","세아베스틸지주","2026-10-07","INVESTMENT","investment-1","자동화 설비 투자","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"자동화 및 수출 확대 추진"
+"99","00106669","세아베스틸지주","2026-10-07","FUNDING","funding-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"자동화 및 수출 확대 추진"
+"99","00106669","세아베스틸지주","2026-10-07","FOREIGN_BUSINESS","foreign_business-1","수출 확대","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"자동화 및 수출 확대 추진"
+"100","00113207","대한전선","2026-10-07","INVESTMENT","investment-1",,"EXPLICIT_NO","NOT_APPLICABLE",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외사업 진출 가능성 검토"
+"100","00113207","대한전선","2026-10-07","FUNDING","funding-1","운전자금 차입 예정","EXPLICIT_YES","PLANNED",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외사업 진출 가능성 검토"
+"100","00113207","대한전선","2026-10-07","FOREIGN_BUSINESS","foreign_business-1","해외사업 검토","EXPLICIT_YES","UNDER_REVIEW",,,,,,"가상 RM 상담","NONE",,,,"UNVERIFIED",,,"해외사업 진출 가능성 검토"

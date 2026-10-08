@@ -1,10 +1,14 @@
-async function getJson(path, failureMessage) {
+async function getJson(path, failureMessage, options = {}) {
+  const { notFoundIsEmpty = false, ...fetchOptions } = options;
   let response;
   try {
-    response = await fetch(path);
+    response = Object.keys(fetchOptions).length > 0
+      ? await fetch(path, fetchOptions)
+      : await fetch(path);
   } catch (error) {
     throw new Error(`백엔드에 연결할 수 없습니다. ${error.message}`);
   }
+  if (notFoundIsEmpty && response.status === 404) return null;
 
   let body;
   try {
@@ -17,7 +21,7 @@ async function getJson(path, failureMessage) {
   }
 
   if (!response.ok) {
-    throw new Error(body?.message || `${failureMessage} (${response.status}).`);
+    throw new Error(body?.message || body?.detail || `${failureMessage} (${response.status}).`);
   }
   return body;
 }
@@ -40,4 +44,60 @@ export async function getCompanyAnalysis(companyId) {
     throw new Error('기업 분석 응답 형식이 백엔드 API 계약과 다릅니다.');
   }
   return analysis;
+}
+
+export async function compareCompany(companyId) {
+  const comparison = await getJson(
+    `/api/companies/${encodeURIComponent(companyId)}/comparison`,
+    '비교 분석 요청에 실패했습니다',
+    { method: 'POST' }
+  );
+  if (!comparison || !comparison.dbDartAnalysis || !Array.isArray(comparison.dartOnlyQuestions)
+      || !Array.isArray(comparison.dbDartQuestions)) {
+    throw new Error('비교 분석 응답 형식이 백엔드 API 계약과 다릅니다.');
+  }
+  return comparison;
+}
+
+export async function getLatestComparison(companyId) {
+  return getJson(
+    `/api/companies/${encodeURIComponent(companyId)}/comparison/latest`,
+    '저장된 비교 결과 조회에 실패했습니다',
+    { notFoundIsEmpty: true }
+  );
+}
+
+export async function saveQuestionAnswer(questionId, answerText) {
+  return getJson(
+    `/api/companies/questions/${encodeURIComponent(questionId)}/answer`,
+    '상담 답변 저장에 실패했습니다',
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answerText }),
+    }
+  );
+}
+
+export async function getConsultations(companyId) {
+  const records = await getJson(
+    `/api/companies/${encodeURIComponent(companyId)}/consultations`,
+    '상담 이력 조회에 실패했습니다'
+  );
+  if (!Array.isArray(records)) {
+    throw new Error('상담 이력 응답 형식이 백엔드 API 계약과 다릅니다.');
+  }
+  return records;
+}
+
+export async function saveConsultation(companyId, consultationDate, consultationText) {
+  return getJson(
+    `/api/companies/${encodeURIComponent(companyId)}/consultations`,
+    '상담 내역 저장에 실패했습니다',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ consultationDate, consultationText }),
+    }
+  );
 }
