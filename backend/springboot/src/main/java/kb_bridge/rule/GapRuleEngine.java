@@ -31,22 +31,22 @@ public class GapRuleEngine {
         List<Finding> findings = new ArrayList<>();
 
         List<DisclosureEvidence> investmentEvidence = matching(disclosures,
-                "시설투자", "신규시설", "유형자산취득", "공장신설", "설비투자", "시설증설");
-        if (isNoPlan(company.investmentPlan()) && !investmentEvidence.isEmpty()) {
+                "시설투자", "신규시설", "유형자산취득", "공장신설", "설비투자", "시설증설", "공장", "투자결정");
+        if (hasPlanGap(company.investmentPlan(), investmentEvidence)) {
             findings.add(new Finding(
                     GapType.INVESTMENT_PLAN_GAP,
-                    company.investmentPlan(),
-                    "시설투자 관련 공시 확인",
+                    emptyToNoPlan(company.investmentPlan()),
+                    "시설투자 관련 OpenDART 공시 확인",
                     investmentEvidence
             ));
         }
 
         List<DisclosureEvidence> fundingEvidence = matching(disclosures,
-                "회사채", "사채발행", "차입", "유상증자", "전환사채", "신주인수권부사채");
+                "회사채", "사채발행", "차입", "유상증자", "전환사채", "신주인수권부사채", "자금조달");
         boolean debtIncreased = hasMaterialDebtIncrease(financials);
-        if (isNoPlan(company.fundingPlan()) && (!fundingEvidence.isEmpty() || debtIncreased)) {
+        if (hasPlanGap(company.fundingPlan(), fundingEvidence) || (isNoPlan(company.fundingPlan()) && debtIncreased)) {
             String latestInfo = !fundingEvidence.isEmpty()
-                    ? "자금조달 관련 공시 확인"
+                    ? "자금조달 관련 OpenDART 공시 확인"
                     : "단기차입금의 전년 대비 20% 이상 증가 확인";
             if (fundingEvidence.isEmpty() && debtIncreased) {
                 fundingEvidence = List.of(new DisclosureEvidence(
@@ -58,19 +58,19 @@ public class GapRuleEngine {
             }
             findings.add(new Finding(
                     GapType.FUNDING_PLAN_GAP,
-                    company.fundingPlan(),
+                    emptyToNoPlan(company.fundingPlan()),
                     latestInfo,
                     fundingEvidence
             ));
         }
 
         List<DisclosureEvidence> foreignEvidence = matching(disclosures,
-                "해외법인", "해외사업", "해외진출", "해외투자", "해외공장", "국외사업", "외국법인");
-        if (isNoPlan(company.foreignBusinessPlan()) && !foreignEvidence.isEmpty()) {
+                "해외법인", "해외사업", "해외진출", "해외투자", "해외공장", "국외사업", "외국법인", "출자");
+        if (hasPlanGap(company.foreignBusinessPlan(), foreignEvidence)) {
             findings.add(new Finding(
                     GapType.FX_BUSINESS_GAP,
-                    company.foreignBusinessPlan(),
-                    "해외법인·해외사업 관련 공시 확인",
+                    emptyToNoPlan(company.foreignBusinessPlan()),
+                    "해외법인/해외사업 관련 OpenDART 공시 확인",
                     foreignEvidence
             ));
         }
@@ -83,15 +83,29 @@ public class GapRuleEngine {
     }
 
     public boolean needsDisclosures(Company company) {
-        return isNoPlan(company.investmentPlan())
-                || isNoPlan(company.fundingPlan())
-                || isNoPlan(company.foreignBusinessPlan());
+        return true;
+    }
+
+    private boolean hasPlanGap(String rmPlan, List<DisclosureEvidence> evidence) {
+        return !evidence.isEmpty() && (isNoPlan(rmPlan) || !sameScopeAlreadyKnown(rmPlan, evidence));
+    }
+
+    private boolean sameScopeAlreadyKnown(String rmPlan, List<DisclosureEvidence> evidence) {
+        if (rmPlan == null || rmPlan.isBlank()) {
+            return false;
+        }
+        String normalizedPlan = normalize(rmPlan);
+        return evidence.stream()
+                .map(DisclosureEvidence::title)
+                .filter(title -> title != null && !title.isBlank())
+                .map(this::normalize)
+                .anyMatch(title -> title.contains(normalizedPlan) || normalizedPlan.contains(title));
     }
 
     private List<DisclosureEvidence> matching(List<DisclosureEvidence> disclosures, String... keywords) {
         return disclosures.stream()
                 .filter(disclosure -> {
-                    String title = disclosure.title().toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
+                    String title = normalize(disclosure.title());
                     if (title.contains("취소")
                             || title.contains("철회")
                             || title.contains("해지")
@@ -100,7 +114,7 @@ public class GapRuleEngine {
                         return false;
                     }
                     for (String keyword : keywords) {
-                        if (title.contains(keyword)) {
+                        if (title.contains(normalize(keyword))) {
                             return true;
                         }
                     }
@@ -111,13 +125,24 @@ public class GapRuleEngine {
 
     private boolean isNoPlan(String plan) {
         if (plan == null || plan.isBlank()) {
-            return false;
+            return true;
         }
-        String normalized = plan.replaceAll("\\s+", "");
+        String normalized = normalize(plan);
         return normalized.equals("없음")
                 || normalized.contains("계획없음")
                 || normalized.contains("없다")
                 || normalized.contains("미계획");
+    }
+
+    private String emptyToNoPlan(String plan) {
+        return plan == null || plan.isBlank() ? "계획 없음" : plan;
+    }
+
+    private String normalize(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
     }
 
     private boolean hasMaterialDebtIncrease(FinancialSnapshot financials) {

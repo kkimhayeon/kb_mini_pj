@@ -20,3 +20,9 @@ dart:
   api:
     key: ${DART_API_KEY}
     base-url: https://opendart.fss.or.kr/api
+
+gemini:
+  api:
+    key: ${GEMINI_API_KEY:}
+    base-url: https://generativelanguage.googleapis.com
+    model: gemini-2.5-flash

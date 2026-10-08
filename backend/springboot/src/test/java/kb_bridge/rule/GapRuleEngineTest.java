@@ -1,19 +1,19 @@
 package kb_bridge.rule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.mock;
 
+import kb_bridge.agent.GapAgent;
 import kb_bridge.agent.GeminiInsightService;
 import kb_bridge.domain.company.entity.Company;
 import kb_bridge.domain.company.entity.DisclosureEvidence;
 import kb_bridge.domain.company.entity.FinancialSnapshot;
-import kb_bridge.agent.GapAgent;
 import kb_bridge.rule.GapRuleEngine.GapType;
 
 class GapRuleEngineTest {
@@ -35,7 +35,7 @@ class GapRuleEngineTest {
 
     @Test
     void detectsFundingPlanGapFromBondIssuanceDisclosure() {
-        Company company = company("있음", "없음", "있음");
+        Company company = company("있음", "", "있음");
         List<GapRuleEngine.Finding> findings = gapRuleEngine.detect(
                 company,
                 null,
@@ -48,7 +48,7 @@ class GapRuleEngineTest {
 
     @Test
     void ignoresCancelledBondIssuanceDisclosure() {
-        Company company = company("있음", "없음", "있음");
+        Company company = company("있음", "", "있음");
         List<GapRuleEngine.Finding> findings = gapRuleEngine.detect(
                 company,
                 null,
@@ -60,7 +60,7 @@ class GapRuleEngineTest {
 
     @Test
     void detectsFundingPlanGapFromMaterialShortTermDebtIncrease() {
-        Company company = company("있음", "없음", "있음");
+        Company company = company("있음", "", "있음");
         FinancialSnapshot financials = new FinancialSnapshot(
                 "2025", null, null, new BigDecimal("125"), new BigDecimal("100"), null);
 
@@ -72,11 +72,11 @@ class GapRuleEngineTest {
 
     @Test
     void detectsForeignBusinessGapFromOverseasBusinessDisclosure() {
-        Company company = company("있음", "있음", "없음");
+        Company company = company("있음", "있음", "");
         List<GapRuleEngine.Finding> findings = gapRuleEngine.detect(
                 company,
                 null,
-                List.of(evidence("해외법인 설립 및 투자"))
+                List.of(evidence("해외법인 설립 및 출자"))
         );
 
         assertThat(findings).extracting(GapRuleEngine.Finding::type)
@@ -84,20 +84,20 @@ class GapRuleEngineTest {
     }
 
     @Test
-    void plansOnlyTheResearchNeededForTheExistingRmInformation() {
+    void plansDisclosuresForEveryAnalysisAndFinancialsWhenFundingPlanIsMissing() {
         GapAgent agent = new GapAgent(gapRuleEngine, mock(GeminiInsightService.class));
-        GapAgent.ResearchPlan plan = agent.planResearch(company("없음", "차입 검토", "없음"));
+        GapAgent.ResearchPlan plan = agent.planResearch(company("있음", "", "있음"));
 
-        assertThat(plan.financialStatements()).isFalse();
+        assertThat(plan.financialStatements()).isTrue();
         assertThat(plan.disclosures()).isTrue();
     }
 
     @Test
-    void doesNotTreatMissingRmInformationAsAnExplicitNoPlan() {
+    void treatsBlankRmInformationAsNoPlanForSeedData() {
         Company company = company(null, null, null);
 
-        assertThat(gapRuleEngine.needsFinancialStatements(company)).isFalse();
-        assertThat(gapRuleEngine.needsDisclosures(company)).isFalse();
+        assertThat(gapRuleEngine.needsFinancialStatements(company)).isTrue();
+        assertThat(gapRuleEngine.needsDisclosures(company)).isTrue();
     }
 
     private Company company(String investment, String funding, String foreignBusiness) {

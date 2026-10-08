@@ -40,7 +40,6 @@ public class DartClient {
         this.restClient = RestClient.builder()
                 .baseUrl(baseUrl)
                 .build();
-
         this.apiKey = apiKey;
     }
 
@@ -84,7 +83,7 @@ public class DartClient {
             throw new IllegalArgumentException(
                     matches.isEmpty()
                             ? "OpenDART 기업코드를 찾을 수 없습니다: " + companyName
-                            : "OpenDART 기업코드가 여러 개 검색되었습니다: " + companyName);
+                            : "OpenDART 기업코드가 여러 건 검색되었습니다: " + companyName);
         }
         return matches.get(0);
     }
@@ -256,11 +255,10 @@ public class DartClient {
 
     private String normalizeName(String value) {
         return value.toLowerCase()
-                .replaceAll("^[\\(（]주[\\)）]", "")
-                .replaceAll("[\\(（]주[\\)）]$", "")
+                .replaceAll("^\\(주\\)|\\(주\\)$", "")
                 .replaceAll("^주식회사|주식회사$", "")
                 .replaceAll("^유한회사|유한회사$", "")
-                .replaceAll("[\\s()（）㈜·.,]", "");
+                .replaceAll("[\\s(),.]", "");
     }
 
     private String formatDisclosureDate(String date) {
