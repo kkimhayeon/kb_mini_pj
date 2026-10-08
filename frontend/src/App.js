@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import {
-  compareCompany,
   getCompanies,
   getConsultations,
   getLatestComparison,
+  searchCompany,
   saveConsultation,
   saveQuestionAnswer,
 } from './api';
@@ -11,9 +11,12 @@ import './App.css';
 
 function App() {
   const [companies, setCompanies] = useState([]);
+  const [searchName, setSearchName] = useState('');
+  const [searchResult, setSearchResult] = useState(null);
   const [selectedId, setSelectedId] = useState('');
   const [analysis, setAnalysis] = useState(null);
   const [comparison, setComparison] = useState(null);
+  const [activeTab, setActiveTab] = useState('comparison');
   const [consultations, setConsultations] = useState([]);
   const [consultationDate, setConsultationDate] = useState(todayDate());
   const [consultationText, setConsultationText] = useState('');
@@ -29,6 +32,7 @@ function App() {
         setCompanies(items);
         if (items.length > 0) {
           setSelectedId(items[0].companyId);
+          setSearchName(items[0].companyName);
         }
       })
       .catch((loadError) => setError(loadError.message))
@@ -43,6 +47,7 @@ function App() {
         if (!active) return;
         setComparison(savedComparison);
         setAnalysis(savedComparison?.dbDartAnalysis || null);
+        if (savedComparison) setActiveTab('comparison');
       })
       .catch((loadError) => {
         if (active) setError(loadError.message);
@@ -84,14 +89,27 @@ function App() {
 
   async function analyzeSelectedCompany(event) {
     event.preventDefault();
-    if (!selectedId) return;
+    if (!searchName.trim()) return;
 
     setLoadingAnalysis(true);
     setError('');
+    setAnalysis(null);
+    setComparison(null);
+    setSearchResult(null);
     try {
-      const result = await compareCompany(selectedId);
-      setComparison(result);
-      setAnalysis(result.dbDartAnalysis);
+      const result = await searchCompany(searchName);
+      setSearchResult(result);
+      setSearchName(result.companyName || searchName.trim());
+      if (result.mode === 'RM_DART') {
+        setSelectedId(result.company.companyId);
+        setComparison(result.comparison);
+        setAnalysis(result.comparison.dbDartAnalysis);
+        setActiveTab('comparison');
+      } else {
+        setSelectedId('');
+        setConsultations([]);
+        setConsultationMessage('');
+      }
     } catch (analysisError) {
       setError(analysisError.message);
     } finally {
@@ -115,40 +133,72 @@ function App() {
       <section className="selection-panel" aria-labelledby="company-selection-title">
         <div>
           <p className="eyebrow">CLIENT REVIEW</p>
-          <h2 id="company-selection-title">분석할 기업을 선택하세요</h2>
+          <h2 id="company-selection-title">분석할 기업을 입력하세요</h2>
         </div>
         <form onSubmit={analyzeSelectedCompany} className="company-form">
-          <label className="visually-hidden" htmlFor="company-select">기업 선택</label>
-          <select
-            id="company-select"
-            value={selectedId}
-            onChange={(event) => {
-              setSelectedId(event.target.value);
-              setAnalysis(null);
-              setComparison(null);
-              setConsultations([]);
-              setConsultationMessage('');
-              setError('');
-            }}
-            disabled={loadingCompanies || companies.length === 0}
-          >
+          <label className="visually-hidden" htmlFor="company-search">분석할 기업명 입력</label>
+          <input
+            id="company-search"
+            type="search"
+            list="rm-company-suggestions"
+            value={searchName}
+            onChange={(event) => setSearchName(event.target.value)}
+            placeholder="회사명을 입력하세요"
+            maxLength={200}
+            disabled={loadingCompanies}
+            required
+          />
+          <datalist id="rm-company-suggestions">
             {companies.map((company) => (
-              <option key={company.companyId} value={company.companyId}>
-                {company.companyName}
-              </option>
+              <option key={company.companyId} value={company.companyName} />
             ))}
-          </select>
-          <button type="submit" disabled={!selectedId || loadingAnalysis}>
+          </datalist>
+          <button type="submit" disabled={!searchName.trim() || loadingAnalysis}>
             {loadingAnalysis ? '비교 분석 중...' : 'AI·DB 비교 분석'}
           </button>
         </form>
       </section>
 
+      {comparison && (
+        <nav className="analysis-tabs" role="tablist" aria-label="분석 결과 항목">
+          {[
+            ['comparison', 'AI·DB 비교'],
+            ['rm', 'RM 사전정보'],
+            ['consultation', '상담 이력'],
+            ['public', '공시·재무'],
+            ['gaps', '항목별 분석'],
+          ].map(([tabId, label]) => (
+            <button
+              key={tabId}
+              id={`analysis-tab-${tabId}`}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === tabId}
+              aria-controls={`analysis-panel-${tabId}`}
+              tabIndex={activeTab === tabId ? 0 : -1}
+              onClick={() => setActiveTab(tabId)}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
+      )}
+
       {error && <p className="error-message" role="alert">{error}</p>}
       {loadingCompanies && <p className="empty-state">RM 기업정보를 불러오는 중입니다...</p>}
+      {searchResult && searchResult.mode !== 'RM_DART' && (
+        <CompanySearchResult result={searchResult} />
+      )}
 
       {comparison && (
-        <section className="comparison-dashboard" aria-labelledby="comparison-title">
+        <section
+          className="comparison-dashboard analysis-tab-panel"
+          id="analysis-panel-comparison"
+          role="tabpanel"
+          aria-label="AI·DB 비교"
+          aria-labelledby="analysis-tab-comparison"
+          hidden={activeTab !== 'comparison'}
+        >
           <div className="section-heading">
             <div>
               <p className="eyebrow">RESULT COMPARISON</p>
@@ -194,7 +244,14 @@ function App() {
       )}
 
       {selectedCompany && (
-        <section className="rm-panel" aria-labelledby="rm-info-title">
+        <section
+          className="rm-panel analysis-tab-panel"
+          id="analysis-panel-rm"
+          role="tabpanel"
+          aria-label="RM 사전정보"
+          aria-labelledby="analysis-tab-rm"
+          hidden={Boolean(comparison) && activeTab !== 'rm'}
+        >
           <div className="section-heading">
             <div>
               <p className="eyebrow">EXISTING RM KNOWLEDGE</p>
@@ -227,7 +284,14 @@ function App() {
       )}
 
       {selectedCompany && (
-        <section className="consultation-panel" aria-labelledby="consultation-title">
+        <section
+          className="consultation-panel analysis-tab-panel"
+          id="analysis-panel-consultation"
+          role="tabpanel"
+          aria-label="상담 이력"
+          aria-labelledby="analysis-tab-consultation"
+          hidden={Boolean(comparison) && activeTab !== 'consultation'}
+        >
           <div className="section-heading">
             <div>
               <p className="eyebrow">RM CONSULTATION LOG</p>
@@ -282,7 +346,14 @@ function App() {
       )}
 
       {analysis && (
-        <section className="analysis-section" aria-labelledby="analysis-title">
+        <section
+          className="analysis-section analysis-tab-panel"
+          id="analysis-panel-public"
+          role="tabpanel"
+          aria-label="공시·재무"
+          aria-labelledby="analysis-tab-public"
+          hidden={Boolean(comparison) && activeTab !== 'public'}
+        >
           <div className="analysis-heading">
             <div>
               <p className="eyebrow">LATEST PUBLIC INFORMATION</p>
@@ -340,7 +411,24 @@ function App() {
               <p>{signal.message}</p>
             </div>
           ))}
+        </section>
+      )}
 
+      {analysis && (
+        <section
+          className="analysis-section analysis-tab-panel"
+          id="analysis-panel-gaps"
+          role="tabpanel"
+          aria-label="항목별 분석"
+          aria-labelledby="analysis-tab-gaps"
+          hidden={Boolean(comparison) && activeTab !== 'gaps'}
+        >
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">GAP ASSESSMENT</p>
+              <h2>항목별 평가 결과</h2>
+            </div>
+          </div>
           {(analysis.assessments || []).length > 0 ? analysis.assessments.map((assessment) => {
             const gap = analysis.gaps.find((item) => item.planId === assessment.planId);
             return (
@@ -402,6 +490,107 @@ function App() {
         </section>
       )}
     </main>
+  );
+}
+
+function CompanySearchResult({ result }) {
+  const isGptReference = result.mode === 'GPT_REFERENCE' || result.mode === 'GPT_UNAVAILABLE';
+  const dartCompany = result.dartCompany;
+
+  return (
+    <section className="search-result-panel" aria-labelledby="search-result-title">
+      <div className="section-heading">
+        <div>
+          <p className="eyebrow">{isGptReference ? 'GPT REFERENCE' : 'OPENDART PUBLIC INFORMATION'}</p>
+          <h2 id="search-result-title">{result.companyName} 분석 결과</h2>
+        </div>
+        <span className={`status-badge ${result.mode === 'GPT_UNAVAILABLE' ? 'warning' : ''}`}>
+          {result.mode === 'DART_ONLY'
+            ? 'DART 공개정보'
+            : result.mode === 'GPT_REFERENCE'
+              ? 'GPT 참고정보'
+              : 'GPT 사용 불가'}
+        </span>
+      </div>
+      <p className="analysis-message">{result.message}</p>
+
+      {result.collectionMessages?.length > 0 && (
+        <div className="data-notice collection-notice" role="status">
+          <strong>자료 조회 상태</strong>
+          <ul>{result.collectionMessages.map((message) => <li key={message}>{message}</li>)}</ul>
+        </div>
+      )}
+
+      {isGptReference ? (
+        <>
+          <div className="data-notice gpt-disclaimer">
+            OpenDART에서 확인되지 않은 회사명에 대한 GPT 참고 답변입니다. 회사별 사실과 최신 정보는 공식 자료로 확인하세요.
+          </div>
+          {result.aiSummary && <p className="search-ai-summary">{result.aiSummary}</p>}
+          {result.aiQuestions?.length > 0 && (
+            <div className="search-ai-questions">
+              <h3>확인해 볼 질문</h3>
+              <ul>{result.aiQuestions.map((question) => <li key={question}>{question}</li>)}</ul>
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <p className="retrieval-details">
+            OpenDART 기업코드 {result.corpCode}
+            {' · '}분석일 {result.analyzedAt}
+            {' · '}재무 {retrievalStatusLabel(result.financialStatus)}
+            {' · '}공시 {retrievalStatusLabel(result.disclosureStatus)}
+          </p>
+          {dartCompany && (
+            <dl className="dart-company-details">
+              <div><dt>영문명</dt><dd>{dartCompany.corpNameEng || '확인할 수 없음'}</dd></div>
+              <div><dt>종목명 / 종목코드</dt><dd>{[dartCompany.stockName, dartCompany.stockCode].filter(Boolean).join(' / ') || '확인할 수 없음'}</dd></div>
+              <div><dt>대표자</dt><dd>{dartCompany.ceoName || '확인할 수 없음'}</dd></div>
+              <div><dt>기업 구분</dt><dd>{dartCompany.corpClass || '확인할 수 없음'}</dd></div>
+              <div><dt>주소</dt><dd>{dartCompany.adres || '확인할 수 없음'}</dd></div>
+              <div><dt>설립일</dt><dd>{dartCompany.establishedDate || '확인할 수 없음'}</dd></div>
+            </dl>
+          )}
+          {result.financials && (
+            <div className="financial-panel">
+              <h3>최근 재무정보 <span>{result.financials.period} 사업연도</span></h3>
+              <dl className="financial-grid">
+                <div><dt>매출액</dt><dd>{formatAmount(result.financials.revenue)}</dd></div>
+                <div><dt>영업이익</dt><dd>{formatAmount(result.financials.operatingProfit)}</dd></div>
+                <div><dt>단기차입금</dt><dd>{formatAmount(result.financials.shortTermDebt)}</dd></div>
+                <div><dt>총차입금</dt><dd>{formatAmount(result.financials.totalDebt)}</dd></div>
+                <div><dt>영업활동 현금흐름</dt><dd>{formatAmount(result.financials.operatingCashFlow)}</dd></div>
+              </dl>
+            </div>
+          )}
+          {result.aiSummary && (
+            <article className="search-ai-summary">
+              <h3>OpenAI 공개정보 요약</h3>
+              <p>{result.aiSummary}</p>
+              {result.aiQuestions?.length > 0 && (
+                <ul>{result.aiQuestions.map((question) => <li key={question}>{question}</li>)}</ul>
+              )}
+            </article>
+          )}
+          <div className="search-disclosures">
+            <h3>관련 공시 ({result.disclosures?.length || 0}건)</h3>
+            {result.disclosures?.length > 0 ? (
+              <ul>
+                {result.disclosures.map((disclosure) => (
+                  <li key={disclosure.receiptNumber}>
+                    <span>{disclosure.date || '날짜 확인 필요'}</span>
+                    <a href={disclosure.url} target="_blank" rel="noreferrer">{disclosure.title}</a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>조회 범위에서 분석 대상으로 분류된 관련 공시가 없습니다.</p>
+            )}
+          </div>
+        </>
+      )}
+    </section>
   );
 }
 

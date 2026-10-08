@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -84,6 +85,12 @@ public class RmKnowledgeService {
                 .filter(company -> company.companyId().equals(companyId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unknown RM company id: " + companyId));
+    }
+
+    public Optional<Company> findByCorpCode(String corpCode) {
+        return findAll().stream()
+                .filter(company -> company.corpCode().equals(corpCode))
+                .findFirst();
     }
 
     public void updateAssessmentStatuses(String companyId, List<PlanAssessment> assessments) {

@@ -13,6 +13,8 @@ import java.util.List;
 
 import kb_bridge.domain.company.entity.AnalysisComparisonResponse;
 import kb_bridge.domain.company.entity.Company;
+import kb_bridge.domain.company.entity.CompanySearchRequest;
+import kb_bridge.domain.company.entity.CompanySearchResponse;
 import kb_bridge.domain.company.entity.ConsultationQuestion;
 import kb_bridge.domain.company.entity.ConsultationRecord;
 import kb_bridge.domain.company.entity.ConsultationRecordRequest;
@@ -20,6 +22,7 @@ import kb_bridge.domain.company.entity.GapAnalysisResponse;
 import kb_bridge.domain.company.entity.QuestionAnswerRequest;
 import kb_bridge.domain.company.service.ConsultationRecordService;
 import kb_bridge.domain.company.service.CompanyService;
+import kb_bridge.domain.company.service.CompanySearchService;
 import kb_bridge.external.dart.dto.DartCompanyResponse;
 
 @RestController
@@ -29,18 +32,26 @@ public class CompanyController {
 
     private final CompanyService companyService;
     private final ConsultationRecordService consultationRecordService;
+    private final CompanySearchService companySearchService;
 
     public CompanyController(
             CompanyService companyService,
-            ConsultationRecordService consultationRecordService
+            ConsultationRecordService consultationRecordService,
+            CompanySearchService companySearchService
     ) {
         this.companyService = companyService;
         this.consultationRecordService = consultationRecordService;
+        this.companySearchService = companySearchService;
     }
 
     @GetMapping
     public List<Company> getRmCompanies() {
         return companyService.getRmCompanies();
+    }
+
+    @PostMapping("/search")
+    public CompanySearchResponse searchCompany(@RequestBody CompanySearchRequest request) {
+        return companySearchService.search(request.companyName());
     }
 
     @GetMapping("/{companyId}/analysis")

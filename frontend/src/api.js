@@ -35,6 +35,22 @@ export async function getCompanies() {
   return companies;
 }
 
+export async function searchCompany(companyName) {
+  const result = await getJson(
+    '/api/companies/search',
+    '기업 검색에 실패했습니다',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ companyName }),
+    }
+  );
+  if (!result || !['RM_DART', 'DART_ONLY', 'GPT_REFERENCE', 'GPT_UNAVAILABLE'].includes(result.mode)) {
+    throw new Error('기업 검색 응답 형식이 백엔드 API 계약과 다릅니다.');
+  }
+  return result;
+}
+
 export async function getCompanyAnalysis(companyId) {
   const analysis = await getJson(
     `/api/companies/${encodeURIComponent(companyId)}/analysis`,

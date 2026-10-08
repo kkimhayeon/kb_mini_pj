@@ -48,6 +48,25 @@ public class OpenAiInsightService {
         return parseInsight(openAiClient.generateInsight(createDartOnlyPrompt(company, financials, disclosures)));
     }
 
+    public Optional<Insight> generateCompanyReference(String companyName) {
+        if (!openAiClient.isConfigured()) {
+            return Optional.empty();
+        }
+        String prompt = """
+                당신은 기업 검색을 보조하는 참고 정보 도우미입니다.
+                OpenDART에서 이 회사의 기업코드를 찾지 못했습니다. 이것은 회사가 존재하지 않는다는 뜻이 아닙니다.
+                아래 회사명만으로 답하고, 회사 특정 사실을 확실히 알고 있지 않다면 추측하지 마세요.
+                회사별 정보는 학습된 공개 지식일 수 있으며 최신성·정확성이 검증되지 않았다고 요약에 명시하세요.
+                회사의 존재, 소재지, 대표자, 재무 수치, 사업 현황을 지어내지 마세요.
+                회사에 대해 신뢰할 만한 지식이 부족하면 확인할 수 없다고 밝히고, 사용자가 확인할 공개 자료와
+                조사 항목을 제안하세요. 상담 질문은 자료나 사업계획을 확인하는 중립적 질문 2~4개로 작성하세요.
+                출력은 reason 문자열과 questions 문자열 배열을 포함하는 JSON 객체만 사용하세요.
+
+                회사명: %s
+                """.formatted(companyName);
+        return parseInsight(openAiClient.generateInsight(prompt));
+    }
+
     private Optional<Insight> parseInsight(JsonNode response) {
         JsonNode text = response == null
                 ? null

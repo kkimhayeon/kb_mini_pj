@@ -97,13 +97,15 @@ h2 {
 }
 
 select,
+input,
 button {
   min-height: 44px;
   border-radius: 9px;
   font: inherit;
 }
 
-select {
+select,
+.company-form input {
   flex: 1;
   min-width: 0;
   padding: 0 13px;
@@ -130,6 +132,124 @@ button:hover:not(:disabled) {
 button:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.search-result-panel {
+  margin-top: 22px;
+  padding: 26px;
+  border: 1px solid #e2e9e6;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 8px 28px rgb(28 53 48 / 4%);
+}
+
+.dart-company-details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.dart-company-details > div {
+  min-width: 0;
+  padding: 14px;
+  border-radius: 10px;
+  background: #f6f8f7;
+}
+
+.search-ai-summary,
+.search-ai-questions,
+.search-disclosures {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid #e2e9e6;
+  border-radius: 10px;
+  background: #fff;
+  color: #354842;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.search-ai-summary h3,
+.search-ai-questions h3,
+.search-disclosures h3 {
+  margin: 0 0 10px;
+  color: #273d37;
+  font-size: 15px;
+}
+
+.search-ai-summary p,
+.search-disclosures p {
+  margin-bottom: 0;
+}
+
+.search-ai-questions ul,
+.search-ai-summary ul,
+.search-disclosures ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.search-disclosures li + li {
+  margin-top: 8px;
+}
+
+.search-disclosures li span {
+  display: block;
+  color: #83908b;
+  font-size: 11px;
+}
+
+.search-disclosures a {
+  color: #176b55;
+  font-weight: 600;
+}
+
+.gpt-disclaimer {
+  margin-top: 14px;
+  background: #fff8e9;
+  color: #795c24;
+  text-align: left;
+}
+
+.analysis-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-top: 20px;
+  overflow: hidden;
+  border: 1px solid #dedede;
+  border-radius: 8px;
+  background: #f2f2f2;
+}
+
+.analysis-tabs button {
+  min-width: 0;
+  min-height: 48px;
+  padding: 8px 12px;
+  border-right: 1px solid #dedede;
+  border-radius: 0;
+  background: #f2f2f2;
+  color: #666;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: normal;
+}
+
+.analysis-tabs button:last-child {
+  border-right: 0;
+}
+
+.analysis-tabs button[aria-selected='true'] {
+  background: #ff6a00;
+  color: #fff;
+}
+
+.analysis-tabs button:hover:not(:disabled):not([aria-selected='true']) {
+  background: #e9e9e9;
+}
+
+.analysis-tab-panel[hidden] {
+  display: none;
 }
 
 .rm-panel,
@@ -721,6 +841,12 @@ dd {
     padding-top: 30px;
   }
 
+  .analysis-tabs button {
+    min-height: 44px;
+    padding: 7px 5px;
+    font-size: 11px;
+  }
+
   .selection-panel,
   .section-heading,
   .analysis-heading {
@@ -751,7 +877,8 @@ dd {
   }
 
   .rm-grid,
-  .financial-grid {
+  .financial-grid,
+  .dart-company-details {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -770,11 +897,16 @@ dd {
   }
 
   .rm-panel,
-  .analysis-section {
+  .analysis-section,
+  .search-result-panel {
     padding: 19px;
   }
 
   .financial-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dart-company-details {
     grid-template-columns: 1fr;
   }
 }

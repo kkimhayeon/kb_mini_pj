@@ -34,6 +34,18 @@ public class DartClient {
     private static final DateTimeFormatter DART_DATE = DateTimeFormatter.BASIC_ISO_DATE;
     private static final int FINANCIAL_LOOKBACK_YEARS = 5;
 
+    public static class CompanyNotFoundException extends IllegalArgumentException {
+        public CompanyNotFoundException(String companyName) {
+            super("OpenDART 기업코드를 찾을 수 없습니다: " + companyName);
+        }
+    }
+
+    public static class AmbiguousCompanyException extends IllegalArgumentException {
+        public AmbiguousCompanyException(String companyName) {
+            super("OpenDART 기업코드가 여러 개 검색되었습니다. 회사명을 더 구체적으로 입력하세요: " + companyName);
+        }
+    }
+
     private final RestClient restClient;
     private final String apiKey;
     private volatile Map<String, String> corpCodes;
@@ -86,10 +98,10 @@ public class DartClient {
                     .toList();
         }
         if (matches.size() != 1) {
-            throw new IllegalArgumentException(
-                    matches.isEmpty()
-                            ? "OpenDART 기업코드를 찾을 수 없습니다: " + companyName
-                            : "OpenDART 기업코드가 여러 개 검색되었습니다: " + companyName);
+            if (matches.isEmpty()) {
+                throw new CompanyNotFoundException(companyName);
+            }
+            throw new AmbiguousCompanyException(companyName);
         }
         return matches.get(0);
     }
