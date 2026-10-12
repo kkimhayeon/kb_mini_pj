@@ -5,7 +5,7 @@ import java.util.List;
 public record GapAnalysisResponse(
         Company company, String corpCode, FinancialSnapshot financials, List<GapResult> gaps,
         String message, String outcome, List<SourceStatus> sources, boolean scopeLimited, String retrievalStatus,
-        List<PlanComparison> comparisons
+        List<PlanComparison> comparisons, List<DisclosureEvidence> disclosures
 ) {
     public enum RetrievalState { SUCCESS, NO_DATA, NOT_REQUESTED, FAILED, PARTIAL }
     public record SourceStatus(String source, RetrievalState status, String message) { }
@@ -13,12 +13,17 @@ public record GapAnalysisResponse(
     public GapAnalysisResponse(Company company, String corpCode, FinancialSnapshot financials,
                                List<GapResult> gaps, String message) {
         this(company, corpCode, financials, gaps, message,
-                gaps.isEmpty() ? "NO_CHANGE_EVIDENCE" : "GAPS_FOUND", List.of(), false, "SUCCESS", List.of());
+                gaps.isEmpty() ? "NO_CHANGE_EVIDENCE" : "GAPS_FOUND", List.of(), false, "SUCCESS", List.of(), List.of());
     }
 
     public GapAnalysisResponse withComparisons(List<PlanComparison> items) {
         return new GapAnalysisResponse(company, corpCode, financials, gaps, message, outcome, sources,
-                scopeLimited, retrievalStatus, List.copyOf(items));
+                scopeLimited, retrievalStatus, List.copyOf(items), disclosures);
+    }
+
+    public GapAnalysisResponse withDisclosures(List<DisclosureEvidence> items) {
+        return new GapAnalysisResponse(company, corpCode, financials, gaps, message, outcome, sources,
+                scopeLimited, retrievalStatus, comparisons, List.copyOf(items));
     }
 
     public GapAnalysisResponse withSources(List<SourceStatus> checks) {
@@ -43,6 +48,6 @@ public record GapAnalysisResponse(
             default -> "이번 조회 범위와 적용 규칙에서 변경 근거를 찾지 못했습니다. 변경이 없음을 확정하지는 않습니다.";
         };
         return new GapAnalysisResponse(company, corpCode, financials, gaps, summary,
-                result, List.copyOf(checks), limited, retrieval, comparisons);
+                result, List.copyOf(checks), limited, retrieval, comparisons, disclosures);
     }
 }

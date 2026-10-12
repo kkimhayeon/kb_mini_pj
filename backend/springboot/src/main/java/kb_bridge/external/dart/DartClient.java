@@ -65,6 +65,12 @@ public class DartClient {
     }
 
     public String resolveCorpCode(String companyName) {
+        return resolveCompany(companyName).corpCode();
+    }
+
+    public record CorpCodeMatch(String companyName, String corpCode) { }
+
+    public CorpCodeMatch resolveCompany(String companyName) {
         ensureApiKey();
         Map<String, String> codes = corpCodes;
         if (codes == null) {
@@ -78,14 +84,12 @@ public class DartClient {
         }
 
         String normalizedName = normalizeName(companyName);
-        List<String> matches = codes.entrySet().stream()
+        List<Map.Entry<String, String>> matches = codes.entrySet().stream()
                 .filter(entry -> normalizeName(entry.getKey()).equals(normalizedName))
-                .map(Map.Entry::getValue)
                 .toList();
         if (matches.isEmpty()) {
             matches = codes.entrySet().stream()
                     .filter(entry -> normalizeName(entry.getKey()).contains(normalizedName))
-                    .map(Map.Entry::getValue)
                     .toList();
         }
         if (matches.size() != 1) {
@@ -94,7 +98,8 @@ public class DartClient {
                             ? "OpenDART 기업코드를 찾을 수 없습니다: " + companyName
                             : "OpenDART 기업코드가 여러 건 검색되었습니다: " + companyName);
         }
-        return matches.get(0);
+        Map.Entry<String, String> match = matches.get(0);
+        return new CorpCodeMatch(match.getKey(), match.getValue());
     }
 
     public FinancialSnapshot getRecentFinancials(String corpCode) {
@@ -121,7 +126,7 @@ public class DartClient {
 
     public DisclosureBatch getDisclosureBatch(String corpCode) {
         ensureApiKey();
-        String startDate = LocalDate.now().minusYears(1).format(DART_DATE);
+        String startDate = LocalDate.now().minusYears(3).format(DART_DATE);
         String endDate = LocalDate.now().format(DART_DATE);
         Map<String, DisclosureEvidence> found = new LinkedHashMap<>();
         boolean incomplete = false;

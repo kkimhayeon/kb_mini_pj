@@ -57,6 +57,13 @@ public class GapAnalysisPersistenceService {
         long analysisId = insertAnalysis(companyPk, analysisAt, response, confirmedFacts);
         for (GapResult gap : response.gaps()) {
             Long planId = gap.planId();
+            // Public disclosure findings can be useful for the response even when
+            // they cannot be attached to an existing RM plan. The gap_result
+            // schema requires a plan, so keep those findings in the response
+            // without attempting an invalid persistence row.
+            if (planId == null) {
+                continue;
+            }
             long resultId = insertResult(analysisId, companyPk, planId, gap, response.financials());
             for (DisclosureEvidence evidence : gap.evidence()) {
                 extractReceiptNumber(evidence)

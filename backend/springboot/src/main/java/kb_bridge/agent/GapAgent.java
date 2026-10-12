@@ -46,10 +46,11 @@ public class GapAgent {
                 .map(this::toGapResult)
                 .toList();
         String message = gaps.isEmpty()
-                ? "현재 RM 사전정보와 확인 가능한 공개정보 사이에서 변경 후보를 찾지 못했습니다."
+                ? "현재 기존 정보와 확인 가능한 공개정보 사이에서 변경 후보를 찾지 못했습니다."
                 : gaps.size() + "개의 고객정보 업데이트 후보를 확인했습니다.";
         return new GapAnalysisResponse(company, corpCode, financials, gaps, message)
-                .withComparisons(kb_bridge.rule.PlanComparisonEngine.compare(company, disclosures));
+                .withComparisons(kb_bridge.rule.PlanComparisonEngine.compare(company, disclosures))
+                .withDisclosures(disclosures == null ? List.of() : disclosures);
     }
 
     private GapResult toGapResult(Finding finding) {
@@ -110,26 +111,26 @@ public class GapAgent {
     }
     private String reasonFor(Finding finding) {
         String evidenceTitle = firstEvidenceTitle(finding.evidence());
-        return "기존 RM 정보와 최근 공개정보 사이에 확인이 필요한 차이가 있습니다. 근거: " + evidenceTitle;
+        return "기존 정보와 최근 공개정보 사이에 확인이 필요한 차이가 있습니다. 근거: " + evidenceTitle;
     }
 
     private List<String> questionsFor(Finding finding) {
         String existingInfo = finding.existingInfo() == null || finding.existingInfo().isBlank()
-                ? "기존 RM 정보 없음"
+                ? "기존 정보 없음"
                 : finding.existingInfo();
         String evidenceTitle = firstEvidenceTitle(finding.evidence());
 
         return switch (finding.type()) {
             case INVESTMENT_PLAN_GAP -> List.of(
-                    "기존 RM 정보는 '" + existingInfo + "'로 파악되어 있었는데, 최근 '" + evidenceTitle + "' 공시와 관련해 투자 범위나 일정이 변경된 부분이 있습니까?",
+                    "기존 정보에 의하면 '" + existingInfo + "'로 파악되어 있었는데, 최근 '" + evidenceTitle + "' 공시와 관련해 투자 범위나 일정이 변경된 부분이 있습니까?",
                     "해당 투자 건의 필요 자금 규모와 조달 방식은 어떻게 계획하고 있습니까?"
             );
             case FUNDING_PLAN_GAP -> List.of(
-                    "기존 RM 정보는 '" + existingInfo + "'로 파악되어 있었는데, 최근 '" + evidenceTitle + "' 근거와 관련해 자금조달 계획이 변경되었습니까?",
+                    "기존 정보에 의하면 '" + existingInfo + "'로 파악되어 있었는데, 최근 '" + evidenceTitle + "' 근거와 관련해 자금조달 계획이 변경되었습니까?",
                     "이번 자금조달의 사용 목적, 규모, 상환 또는 후속 조달 계획은 어떻게 보고 있습니까?"
             );
             case FX_BUSINESS_GAP -> List.of(
-                    "기존 RM 정보는 '" + existingInfo + "'로 파악되어 있었는데, 최근 '" + evidenceTitle + "' 공시와 관련해 해외사업 또는 출자 계획이 변경되었습니까?",
+                    "기존 정보에 의하면 '" + existingInfo + "'로 파악되어 있었는데, 최근 '" + evidenceTitle + "' 공시와 관련해 해외사업 또는 출자 계획이 변경되었습니까?",
                     "해외사업 진행 단계, 필요 외화 규모, 환위험 관리 계획은 어떻게 보고 있습니까?"
             );
         };

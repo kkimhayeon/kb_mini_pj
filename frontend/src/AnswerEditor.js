@@ -16,9 +16,9 @@ export default function AnswerEditor({ question, number, domainLabel, draft, dis
         <p>{question.questionText}</p>
       </div>
       <fieldset className="answer-fields" disabled={disabled}>
-        <label htmlFor={inputId('answer')}>답변 원문</label>
         <textarea
           id={inputId('answer')}
+          aria-label="답변 원문"
           value={value.answerText}
           onChange={(event) => update('answerText', event.target.value)}
           placeholder="고객 답변을 입력해주세요"
@@ -26,8 +26,8 @@ export default function AnswerEditor({ question, number, domainLabel, draft, dis
         />
         {question.planId ? (
           <details className="plan-review">
-            <summary>계획 정보 입력 및 RM 확인 (선택)</summary>
-            <p className="hint">확인한 항목만 입력하세요. 금액과 일정은 다른 답변에서 나누어 입력해도 같은 계획에 합쳐집니다.</p>
+            <summary>확인한 계획 정보 저장</summary>
+            <p className="hint">고객 답변 중 다음 분석에 기준으로 쓸 내용만 선택해서 입력하세요.</p>
             <div className="plan-review-grid">
               <label htmlFor={inputId('scope')}>사업 대상·범위
                 <input id={inputId('scope')} value={value.scope}
@@ -66,11 +66,11 @@ export default function AnswerEditor({ question, number, domainLabel, draft, dis
               <input id={inputId('confirmed')} type="checkbox" checked={value.confirmed}
                 disabled={!value.answerText.trim() || !hasPlanFields(value)}
                 onChange={(event) => update('confirmed', event.target.checked)} />
-              입력한 계획 항목을 RM이 확인했으며 다음 분석에 반영합니다
+              <span>이 계획 정보를 다음 분석 기준으로 반영합니다</span>
             </label>
-            <p className="hint">확인하지 않은 계획 정보는 미확인 상태로 저장됩니다. 답변이나 항목을 수정하면 다시 확인해야 합니다.</p>
+            <p className="hint">체크하지 않으면 답변 기록만 저장되고, 기존 계획 정보는 바뀌지 않습니다.</p>
           </details>
-        ) : <p className="hint">연결된 계획이 없어 답변 원문만 저장됩니다.</p>}
+        ) : <p className="hint">이 질문은 계획 항목과 연결되지 않아 답변 기록만 저장됩니다.</p>}
       </fieldset>
     </article>
   );

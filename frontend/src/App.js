@@ -4,40 +4,61 @@ import {
   getCompanies,
   getCompanyAnalysis,
   getConsultations,
+  discoverCompany,
 } from './api';
 import './App.css';
 import AnswerEditor from './AnswerEditor';
 import AnalysisStatus, { outcomeLabel } from './AnalysisStatus';
 import PlanComparisons from './PlanComparisons';
 import { buildConsultationQuestions } from './consultationDraft';
+import ConsultationMemo from './components/ConsultationMemo';
+import StepNavigation from './components/StepNavigation';
+import PageHeader from './components/PageHeader';
+import FooterActions from './components/FooterActions';
+import InfoItem from './components/InfoItem';
+import CompanyInputPageView from './components/CompanyInputPage';
+import ComparisonPageView from './components/ComparisonPage';
+import GapQuestionPageView from './components/GapQuestionPage';
+import AnswerPageView from './components/AnswerPage';
+import { findPlanId, normalize, resolveCompany } from './utils/company';
+import { badgeClass, gapDomain, judgementSentence, summarizeGaps } from './utils/gap';
+import { formatAmount, formatDateTime } from './utils/formatting';
+import {
+  CHANGE_LABELS,
+  COMPANY_INPUT_LABELS,
+  DOMAIN_LABELS,
+  GAP_LABELS,
+  STATUS_LABELS,
+  STEP_LABELS,
+} from './constants/labels';
 
-const DOMAIN_LABELS = {
+const LEGACY_DOMAIN_LABELS = {
   INVESTMENT: '투자',
   FUNDING: '자금조달',
   FX: '해외사업',
 };
 
-const GAP_LABELS = {
+const LEGACY_GAP_LABELS = {
   INVESTMENT_PLAN_GAP: '투자계획 변경 후보',
   FUNDING_PLAN_GAP: '자금조달 변경 후보',
   FX_BUSINESS_GAP: '해외사업 변경 후보',
 };
 
-const CHANGE_LABELS = {
+const LEGACY_CHANGE_LABELS = {
   CONFLICT: '기존 정보와 상충',
   NEEDS_CONFIRMATION: '추가 확인 필요',
   SPECIFIED: '기존 계획과 다른 공개정보',
   NEW_INFO: '신규 공개정보 발견',
 };
 
-const STATUS_LABELS = {
+const LEGACY_STATUS_LABELS = {
   CONFIRMED: '근거 확인됨',
   PENDING: '상담 확인 필요',
   NO_CHANGE_EVIDENCE: '변경 근거 없음',
   RETRIEVAL_FAILED: '조회 실패',
 };
 
-const STEP_LABELS = ['기업 입력', '정보 비교', 'Gap 및 질문', '답변 저장'];
+const LEGACY_STEP_LABELS = ['기업 입력', '정보 비교', 'Gap 및 질문', '답변 저장'];
 
 function App() {
   const [companies, setCompanies] = useState([]);
@@ -69,7 +90,7 @@ function App() {
 
   const generatedQuestions = useMemo(() => {
     if (!analysis?.gaps) return [];
-    return analysis.gaps.flatMap((gap, gapIndex) => gap.questions.map((question, index) => ({
+    return analysis.gaps.flatMap((gap, gapIndex) => (gap.questions || []).map((question, index) => ({
       key: `${gap.gapType}-${gap.planId || 'unlinked'}-${gapIndex}-${index}`,
       gapType: gap.gapType,
       changeType: gap.changeType,
@@ -85,6 +106,27 @@ function App() {
     event.preventDefault();
     const company = resolveCompany(companies, query);
     if (!company) {
+      if (query.trim()) {
+        setSelectedId('');
+        setAnalysis(null);
+        setConsultations([]);
+        setHistoryError('DB 미등록 기업은 저장된 상담 이력 없이 공개정보만 조회합니다.');
+        setAnswerDrafts({});
+        setSaveMessage('');
+        setError('');
+        setLoadingAnalysis(true);
+        try {
+          const result = await discoverCompany(query.trim());
+          setAnalysis(result);
+          setStep(1);
+        } catch (analysisError) {
+          setError(analysisError.message);
+          setStep(0);
+        } finally {
+          setLoadingAnalysis(false);
+        }
+        return;
+      }
       setError('DB에 있는 기업명을 입력하거나 목록에서 선택해주세요.');
       return;
     }
@@ -142,7 +184,7 @@ function App() {
         (item) => item.consultationId !== consultation.consultationId
       )]);
       setAnswerDrafts({});
-      setSaveMessage('상담과 답변을 모두 저장했습니다. RM이 확인한 계획 항목만 다음 분석에 반영됩니다.');
+      setSaveMessage('상담과 답변을 모두 저장했습니다. 확인된 계획 항목만 다음 분석에 반영됩니다.');
     } catch (saveError) {
       setError(saveError.message);
     } finally {
@@ -154,21 +196,22 @@ function App() {
   return (
     <main className="app-shell">
       <section className="workspace" aria-label="Corporate Client Gap Agent">
-        <StepNavigation step={step} setStep={setStep} analysis={analysis} busy={savingAnswers} />
+        <StepNavigation step={step} setStep={setStep} analysis={analysis} busy={savingAnswers} labels={STEP_LABELS} />
 
         {step === 0 && (
-          <CompanyInputPage
+          <CompanyInputPageView
             query={query}
             setQuery={setQuery}
             companies={companies}
             loadingCompanies={loadingCompanies}
             loadingAnalysis={loadingAnalysis}
             onSubmit={analyzeCompany}
+            labels={COMPANY_INPUT_LABELS}
           />
         )}
 
         {step === 1 && analysis && selectedCompany && (
-          <ComparisonPage
+          <ComparisonPageView
             company={selectedCompany}
             analysis={analysis}
             consultations={consultations}
@@ -178,7 +221,7 @@ function App() {
         )}
 
         {step === 2 && analysis && (
-          <GapQuestionPage
+          <GapQuestionPageView
             analysis={analysis}
             onPrev={() => setStep(1)}
             onNext={() => setStep(3)}
@@ -186,13 +229,14 @@ function App() {
         )}
 
         {step === 3 && analysis && (
-          <AnswerPage
+          <AnswerPageView
             questions={generatedQuestions}
             answerDrafts={answerDrafts}
             setAnswerDrafts={setAnswerDrafts}
             consultations={consultations}
             saveMessage={saveMessage}
             savingAnswers={savingAnswers}
+            canSave={Boolean(selectedId)}
             onPrev={() => setStep(2)}
             onSave={saveAnswers}
           />
@@ -204,7 +248,7 @@ function App() {
   );
 }
 
-function StepNavigation({ step, setStep, analysis, busy }) {
+function LegacyStepNavigation({ step, setStep, analysis, busy }) {
   return (
     <nav className="step-nav" aria-label="분석 단계">
       {STEP_LABELS.map((label, index) => (
@@ -223,24 +267,24 @@ function StepNavigation({ step, setStep, analysis, busy }) {
   );
 }
 
-function CompanyInputPage({ query, setQuery, companies, loadingCompanies, loadingAnalysis, onSubmit }) {
+function LegacyCompanyInputPage({ query, setQuery, companies, loadingCompanies, loadingAnalysis, onSubmit }) {
   return (
     <div className="single-card input-page">
       <p className="eyebrow">Corporate Client Gap Agent</p>
-      <h1>분석할 기업을 입력해주세요</h1>
+      <h1>{COMPANY_INPUT_LABELS.title}</h1>
       <form className="company-search" onSubmit={onSubmit}>
-        <label htmlFor="company-query">기업명</label>
+        <label htmlFor="company-query">{COMPANY_INPUT_LABELS.field}</label>
         <div className="search-row">
           <input
             id="company-query"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             list="company-options"
-            placeholder="예: 동화약품, KR모터스"
+            placeholder={COMPANY_INPUT_LABELS.placeholder}
             autoComplete="off"
           />
           <button type="submit" disabled={loadingCompanies || loadingAnalysis || !query.trim()}>
-            {loadingAnalysis ? '분석 중' : '분석 시작'}
+            {loadingAnalysis ? COMPANY_INPUT_LABELS.loading : COMPANY_INPUT_LABELS.submit}
           </button>
         </div>
         <datalist id="company-options">
@@ -250,13 +294,13 @@ function CompanyInputPage({ query, setQuery, companies, loadingCompanies, loadin
         </datalist>
       </form>
       <p className="hint">
-        입력한 기업을 DB에서 찾은 뒤 RM 기존 정보와 OpenDART API 정보를 함께 조회합니다.
+        {COMPANY_INPUT_LABELS.hint}
       </p>
     </div>
   );
 }
 
-function ComparisonPage({ company, analysis, consultations, historyError, onNext }) {
+function LegacyComparisonPage({ company, analysis, consultations, historyError, onNext }) {
   const summary = summarizeGaps(analysis.gaps);
 
   return (
@@ -319,7 +363,7 @@ function ComparisonPage({ company, analysis, consultations, historyError, onNext
   );
 }
 
-function GapQuestionPage({ analysis, onPrev, onNext }) {
+function LegacyGapQuestionPage({ analysis, onPrev, onNext }) {
   return (
     <div className="page-panel">
       <PageHeader
@@ -390,7 +434,7 @@ function GapQuestionPage({ analysis, onPrev, onNext }) {
   );
 }
 
-function AnswerPage({ questions, answerDrafts, setAnswerDrafts, consultations, saveMessage, savingAnswers, onPrev, onSave }) {
+function LegacyAnswerPage({ questions, answerDrafts, setAnswerDrafts, consultations, saveMessage, savingAnswers, canSave, onPrev, onSave }) {
   return (
     <div className="page-panel">
       <PageHeader
@@ -425,6 +469,10 @@ function AnswerPage({ questions, answerDrafts, setAnswerDrafts, consultations, s
 
       {saveMessage && <p className="success-message">{saveMessage}</p>}
 
+      {!canSave && <p className="notice">DB 미등록 기업의 공개정보 결과입니다. 상담 답변을 저장하려면 기업을 먼저 등록해주세요.</p>}
+
+      <ConsultationMemo />
+
       {consultations.length > 0 && (
         <section className="saved-history">
           <h2>최근 DB 저장 이력</h2>
@@ -444,7 +492,7 @@ function AnswerPage({ questions, answerDrafts, setAnswerDrafts, consultations, s
         onSave={onSave}
         saveLabel={savingAnswers ? '저장 중' : 'DB에 답변 저장'}
         prevDisabled={savingAnswers}
-        saveDisabled={savingAnswers || !questions.some((question) => answerDrafts[question.key]?.answerText?.trim())}
+        saveDisabled={!canSave || savingAnswers || !questions.some((question) => answerDrafts[question.key]?.answerText?.trim())}
       />
     </div>
   );
@@ -459,7 +507,7 @@ function SummaryTile({ label, value, tone }) {
   );
 }
 
-function PageHeader({ eyebrow, title, description }) {
+function LegacyPageHeader({ eyebrow, title, description }) {
   return (
     <header className="page-heading">
       <p className="eyebrow">{eyebrow}</p>
@@ -469,7 +517,7 @@ function PageHeader({ eyebrow, title, description }) {
   );
 }
 
-function FooterActions({ onPrev, onNext, onSave, nextLabel, saveLabel, saveDisabled, prevDisabled }) {
+function LegacyFooterActions({ onPrev, onNext, onSave, nextLabel, saveLabel, saveDisabled, prevDisabled }) {
   return (
     <div className="footer-actions">
       {onPrev && <button type="button" className="secondary-button" onClick={onPrev} disabled={prevDisabled}>이전</button>}
@@ -480,7 +528,7 @@ function FooterActions({ onPrev, onNext, onSave, nextLabel, saveLabel, saveDisab
   );
 }
 
-function InfoItem({ label, value, wide }) {
+function LegacyInfoItem({ label, value, wide }) {
   return (
     <div className={wide ? 'wide' : ''}>
       <dt>{label}</dt>
@@ -528,7 +576,7 @@ function EvidenceList({ evidence }) {
   );
 }
 
-function summarizeGaps(gaps = []) {
+function legacySummarizeGaps(gaps = []) {
   return gaps.reduce((acc, gap) => {
     const key = gap.changeType || 'UNKNOWN';
     acc[key] = (acc[key] || 0) + 1;
@@ -536,7 +584,7 @@ function summarizeGaps(gaps = []) {
   }, {});
 }
 
-function judgementSentence(gap) {
+function legacyJudgementSentence(gap) {
   if (gap.changeType === 'CONFLICT') {
     return '기존 RM 정보와 공개정보가 서로 다를 가능성이 커서 우선 확인해야 합니다.';
   }
@@ -549,37 +597,37 @@ function judgementSentence(gap) {
   return 'RM 정보에 없던 공개정보가 발견되어 후속 상담에서 확인할 필요가 있습니다.';
 }
 
-function badgeClass(changeType) {
+function legacyBadgeClass(changeType) {
   if (changeType === 'CONFLICT') return 'badge-high';
   if (changeType === 'NEEDS_CONFIRMATION') return 'badge-medium';
   if (changeType === 'SPECIFIED') return 'badge-medium';
   return 'badge-low';
 }
 
-function resolveCompany(companies, query) {
+function legacyResolveCompany(companies, query) {
   const normalized = normalize(query);
   return companies.find((company) => normalize(company.companyName) === normalized)
     || companies.find((company) => normalize(company.companyName).includes(normalized))
     || companies.find((company) => company.companyId === query.trim());
 }
 
-function findPlanId(companies, selectedId, domain) {
+function legacyFindPlanId(companies, selectedId, domain) {
   const selected = companies.find((company) => company.companyId === selectedId);
   const matching = selected?.plans?.filter((plan) => plan.domain === domain) || [];
   return matching.length === 1 ? matching[0].planId : null;
 }
 
-function gapDomain(gapType) {
+function legacyGapDomain(gapType) {
   if (gapType === 'FUNDING_PLAN_GAP') return 'FUNDING';
   if (gapType === 'FX_BUSINESS_GAP') return 'FX';
   return 'INVESTMENT';
 }
 
-function normalize(value) {
+function legacyNormalize(value) {
   return String(value || '').replace(/\s+/g, '').toLowerCase();
 }
 
-function formatDateTime(value) {
+function legacyFormatDateTime(value) {
   if (!value) return '일시 미확인';
   return new Intl.DateTimeFormat('ko-KR', {
     dateStyle: 'medium',
@@ -587,7 +635,7 @@ function formatDateTime(value) {
   }).format(new Date(value));
 }
 
-function formatAmount(amount, currency) {
+function legacyFormatAmount(amount, currency) {
   if (amount === null || amount === undefined) return '확인된 정보 없음';
   return `${new Intl.NumberFormat('ko-KR').format(amount)} ${currency === 'KRW' ? '원' : currency || '통화 미확인'}`;
 }

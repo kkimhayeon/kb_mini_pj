@@ -12,7 +12,7 @@ export default function PlanComparisons({ comparisons = [] }) {
           <p>{item.message}</p>
           {!!item.changes?.length && (
             <table>
-              <thead><tr><th>항목</th><th>RM 확인 정보</th><th>공시 정보</th></tr></thead>
+              <thead><tr><th>항목</th><th>확인 정보</th><th>공시 정보</th></tr></thead>
               <tbody>{item.changes.map((change) => (
                 <tr key={change.field}><td>{change.field === 'AMOUNT' ? '금액' : '일정'}</td>
                   <td>{change.before}</td><td>{change.after}</td></tr>

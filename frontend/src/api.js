@@ -7,7 +7,7 @@ function apiUrl(path) {
 async function getJson(path, failureMessage) {
   let response;
   try {
-    response = await fetch(apiUrl(path));
+    response = await fetch(apiUrl(path), { cache: 'no-store' });
   } catch (error) {
     throw new Error(`백엔드에 연결할 수 없습니다. ${error.message}`);
   }
@@ -44,6 +44,17 @@ export async function getCompanyAnalysis(companyId) {
   );
   if (!analysis || !Array.isArray(analysis.gaps)) {
     throw new Error('기업 분석 응답 형식이 백엔드 API 계약과 다릅니다.');
+  }
+  return analysis;
+}
+
+export async function discoverCompany(companyName) {
+  const analysis = await getJson(
+    `/api/companies/discovery?name=${encodeURIComponent(companyName)}`,
+    '공개정보 조회에 실패했습니다'
+  );
+  if (!analysis || !Array.isArray(analysis.gaps)) {
+    throw new Error('공개정보 조회 응답 형식이 올바르지 않습니다.');
   }
   return analysis;
 }

@@ -109,8 +109,8 @@ public class GapRuleEngine {
                         signal == PlanSignal.EXPLICIT_NONE ? ChangeType.CONFLICT : ChangeType.NEEDS_CONFIRMATION,
                         existingInfo(rule.rmPlan(), signal),
                         signal == PlanSignal.EXPLICIT_NONE
-                                ? "RM 정보에는 자금조달 계획이 없지만 OpenDART 재무정보에서 단기차입금이 전년 대비 20% 이상 증가했습니다."
-                                : "RM 자금조달 정보가 미확인인 상태에서 단기차입금이 전년 대비 20% 이상 증가하여 확인이 필요합니다.",
+                                ? "기존 정보에는 자금조달 계획이 없지만 OpenDART 재무정보에서 단기차입금이 전년 대비 20% 이상 증가했습니다."
+                                : "기존 자금조달 정보가 미확인인 상태에서 단기차입금이 전년 대비 20% 이상 증가하여 확인이 필요합니다.",
                         List.of(financialEvidence(financials))
                 ));
             }
@@ -138,9 +138,9 @@ public class GapRuleEngine {
                         GapType.INVESTMENT_PLAN_GAP,
                         company.investmentPlan(),
                         classifyPlan(company, "INVESTMENT", company.investmentPlan()),
-                        "RM 정보에는 투자 계획이 없지만 OpenDART에서 투자 또는 시설 관련 공시가 발견되었습니다.",
-                        "기존 RM 투자 정보와 다른 범위의 투자 또는 시설 관련 공시가 발견되었습니다.",
-                        "기존 RM 정보는 투자 검토 단계였고, OpenDART에서 관련 공시가 발견되어 진행 상태 확인이 필요합니다.",
+                        "기존 정보에는 투자 계획이 없지만 OpenDART에서 투자 또는 시설 관련 공시가 발견되었습니다.",
+                        "기존 투자 정보와 다른 범위의 투자 또는 시설 관련 공시가 발견되었습니다.",
+                        "기존 정보는 투자 검토 단계였고, OpenDART에서 관련 공시가 발견되어 진행 상태 확인이 필요합니다.",
                         List.of("시설투자", "신규시설", "유형자산취득", "유형자산양수", "타법인주식및출자증권양수", "공장신설", "공장", "설비투자", "시설증설", "투자결정", "타법인주식취득"),
                         List.of("취소", "철회", "해지", "청산", "처분")
                 ),
@@ -149,9 +149,9 @@ public class GapRuleEngine {
                         GapType.FUNDING_PLAN_GAP,
                         company.fundingPlan(),
                         classifyPlan(company, "FUNDING", company.fundingPlan()),
-                        "RM 정보에는 자금조달 계획이 없지만 OpenDART에서 차입 또는 증자 관련 공시가 발견되었습니다.",
-                        "기존 RM 자금조달 정보와 다른 자금조달 관련 공시가 발견되었습니다.",
-                        "기존 RM 정보는 자금조달 검토 단계였고, OpenDART에서 관련 공시가 발견되어 진행 상태 확인이 필요합니다.",
+                        "기존 정보에는 자금조달 계획이 없지만 OpenDART에서 차입 또는 증자 관련 공시가 발견되었습니다.",
+                        "기존 자금조달 정보와 다른 자금조달 관련 공시가 발견되었습니다.",
+                        "기존 정보는 자금조달 검토 단계였고, OpenDART에서 관련 공시가 발견되어 진행 상태 확인이 필요합니다.",
                         List.of("회사채", "사채발행", "차입", "유상증자", "전환사채", "신주인수권부사채", "자금조달", "단기차입금", "금전대여"),
                         List.of("취소", "철회", "해지", "상환완료")
                 ),
@@ -160,9 +160,9 @@ public class GapRuleEngine {
                         GapType.FX_BUSINESS_GAP,
                         company.foreignBusinessPlan(),
                         classifyPlan(company, "FX", company.foreignBusinessPlan()),
-                        "RM 정보에는 해외사업 또는 외환 관련 계획이 없지만 OpenDART에서 해외사업, 출자, 법인 관련 공시가 발견되었습니다.",
-                        "기존 RM 해외사업 정보와 다른 해외사업 또는 출자 관련 공시가 발견되었습니다.",
-                        "기존 RM 정보는 해외사업 검토 단계였고, OpenDART에서 관련 공시가 발견되어 진행 상태 확인이 필요합니다.",
+                        "기존 정보에는 해외사업 또는 외환 관련 계획이 없지만 OpenDART에서 해외사업, 출자, 법인 관련 공시가 발견되었습니다.",
+                        "기존 해외사업 정보와 다른 해외사업 또는 출자 관련 공시가 발견되었습니다.",
+                        "기존 정보는 해외사업 검토 단계였고, OpenDART에서 관련 공시가 발견되어 진행 상태 확인이 필요합니다.",
                         List.of("해외법인", "해외사업", "해외진출", "해외투자", "해외공장", "국외사업", "외화", "환위험", "출자", "타법인주식취득", "타법인주식및출자증권양수"),
                         List.of("취소", "철회", "해지", "청산", "처분")
                 )
@@ -173,17 +173,17 @@ public class GapRuleEngine {
         if (evidence.stream().anyMatch(item -> containsAny(normalize(item.title()), rule.excludeKeywords()))) {
             return new Finding(rule.gapType(), ChangeType.NEEDS_CONFIRMATION,
                     existingInfo(rule.rmPlan(), signal),
-                    "기존 RM 계획과 관련된 취소·철회·종료 공시가 발견되어 동일 계획의 변경인지 확인이 필요합니다.",
+                    "기존 계획과 관련된 취소·철회·종료 공시가 발견되어 동일 계획의 변경인지 확인이 필요합니다.",
                     evidence);
         }
         String latestInfo = switch (signal) {
             case EXPLICIT_NONE -> rule.noPlanLatestInfo();
             case REVIEW -> rule.reviewLatestInfo();
             case PLANNED -> sameScopeAlreadyKnown(rule.rmPlan(), evidence)
-                    ? "기존 RM 계획과 유사한 공개정보가 발견되었지만, 금액·시기·진행상태 재확인이 필요합니다."
+                    ? "기존 계획과 유사한 공개정보가 발견되었지만, 금액·시기·진행상태 재확인이 필요합니다."
                     : rule.changedLatestInfo();
-            case INACTIVE -> "기존 RM 계획은 완료 또는 취소 상태이며, 관련 공시가 동일 건인지 추가 확인이 필요합니다.";
-            case UNKNOWN -> "RM 정보가 불명확한 상태에서 OpenDART 관련 공시가 발견되어 확인이 필요합니다.";
+            case INACTIVE -> "기존 계획은 완료 또는 취소 상태이며, 관련 공시가 동일 건인지 추가 확인이 필요합니다.";
+            case UNKNOWN -> "기존 정보가 불명확한 상태에서 OpenDART 관련 공시가 발견되어 확인이 필요합니다.";
         };
         ChangeType changeType = switch (signal) {
             case EXPLICIT_NONE -> ChangeType.CONFLICT;
@@ -313,7 +313,7 @@ public class GapRuleEngine {
             return "계획 없음";
         }
         if (plan == null || plan.isBlank()) {
-            return "RM 정보 없음";
+            return "기존 정보 없음";
         }
         return plan;
     }

@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
@@ -27,6 +28,11 @@ public class CompanyController {
     @GetMapping
     public List<Company> getRmCompanies() {
         return companyService.getRmCompanies();
+    }
+
+    @GetMapping("/discovery")
+    public GapAnalysisResponse discoverCompany(@RequestParam String name) {
+        return companyService.discoverCompany(name);
     }
 
     @GetMapping("/{companyId}/analysis")

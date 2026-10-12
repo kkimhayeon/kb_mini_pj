@@ -8,6 +8,7 @@ import org.springframework.web.client.RestClientException;
 import kb_bridge.domain.company.entity.GapAnalysisResponse.SourceStatus;
 import kb_bridge.domain.company.entity.GapAnalysisResponse.RetrievalState;
 import java.time.OffsetDateTime;
+import java.time.LocalDate;
 
 import kb_bridge.agent.GapAgent;
 import kb_bridge.external.dart.DartClient;
@@ -49,6 +50,50 @@ public class CompanyService {
 
     public List<Company> getRmCompanies() {
         return rmKnowledgeService.findAll();
+    }
+
+    public GapAnalysisResponse discoverCompany(String companyName) {
+        if (companyName == null || companyName.isBlank()) {
+            throw new IllegalArgumentException("Company name is required.");
+        }
+        DartClient.CorpCodeMatch match = dartClient.resolveCompany(companyName.trim());
+        String corpCode = match.corpCode();
+        DartCompanyResponse dartCompany = dartClient.getCompany(corpCode);
+        if (dartCompany == null || !"000".equals(dartCompany.status())) {
+            throw new IllegalStateException("OpenDART company lookup failed.");
+        }
+
+        Company publicCompany = new Company(
+                "", corpCode, match.companyName(), LocalDate.now(),
+                "RM 기존 정보 없음", "RM 기존 정보 없음", "RM 기존 정보 없음",
+                "DB 미등록 기업: OpenDART 공개정보 기준 조회", List.of());
+        List<SourceStatus> sources = new ArrayList<>();
+        sources.add(new SourceStatus("COMPANY", RetrievalState.SUCCESS, "OpenDART 공개 기업정보를 확인했습니다."));
+
+        FinancialSnapshot financials = null;
+        try {
+            financials = dartClient.getRecentFinancials(corpCode);
+            sources.add(new SourceStatus("FINANCIALS",
+                    financials == null ? RetrievalState.NO_DATA : RetrievalState.SUCCESS,
+                    financials == null ? "조회 가능한 최근 재무정보가 없습니다." : "최근 재무정보를 확인했습니다."));
+        } catch (RestClientException | IllegalStateException exception) {
+            sources.add(new SourceStatus("FINANCIALS", RetrievalState.FAILED, "재무정보 조회에 실패했습니다."));
+        }
+
+        List<DisclosureEvidence> disclosures = List.of();
+        try {
+            var batch = dartClient.getDisclosureBatch(corpCode);
+            disclosures = batch == null || batch.items() == null ? List.of() : batch.items();
+            sources.add(new SourceStatus("DISCLOSURES",
+                    batch != null && batch.truncated() ? RetrievalState.PARTIAL
+                            : disclosures.isEmpty() ? RetrievalState.NO_DATA : RetrievalState.SUCCESS,
+                    disclosures.isEmpty() ? "최근 3년 조회 범위에 공시가 없습니다." : "최근 3년 OpenDART 공시를 확인했습니다."));
+        } catch (RestClientException | IllegalStateException exception) {
+            sources.add(new SourceStatus("DISCLOSURES", RetrievalState.FAILED, "공시 조회에 실패했습니다."));
+        }
+
+        return gapAgent.analyze(publicCompany, corpCode, financials, disclosures)
+                .withSources(sources);
     }
 
     public GapAnalysisResponse analyzeCompany(String companyId) {
@@ -110,9 +155,9 @@ public class CompanyService {
                 RetrievalState state = batch.truncated() ? RetrievalState.PARTIAL
                         : disclosures.isEmpty() ? RetrievalState.NO_DATA : RetrievalState.SUCCESS;
                 sources.add(new SourceStatus("DISCLOSURES", state, switch (state) {
-                    case PARTIAL -> "최근 1년 공시를 순회했지만 일부 페이지 또는 항목을 가져오지 못했습니다.";
-                    case NO_DATA -> "최근 1년 조회 범위에 공시가 없습니다.";
-                    default -> "최근 1년 공시의 전체 페이지를 확인했습니다.";
+                    case PARTIAL -> "최근 3년 공시를 순회했지만 일부 페이지 또는 항목을 가져오지 못했습니다.";
+                    case NO_DATA -> "최근 3년 조회 범위에 공시가 없습니다.";
+                    default -> "최근 3년 공시의 전체 페이지를 확인했습니다.";
                 }));
             } catch (RestClientException | IllegalStateException exception) {
                 sources.add(new SourceStatus("DISCLOSURES", RetrievalState.FAILED, "공시 조회에 실패했습니다. 재무 등 확인된 자료만 사용합니다."));

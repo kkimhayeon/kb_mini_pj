@@ -56,7 +56,7 @@ class GapRuleEngineTest {
     void missingInformationIsUnconfirmedRatherThanNoPlan(String missing) {
         var findings = detect(company(missing, "있음", "있음"), "신규 시설투자 결정");
         assertThat(findings).hasSize(1);
-        assertThat(findings.getFirst().existingInfo()).isEqualTo("RM 정보 없음");
+        assertThat(findings.getFirst().existingInfo()).isEqualTo("기존 정보 없음");
         assertThat(findings.getFirst().changeType()).isEqualTo(ChangeType.NEEDS_CONFIRMATION);
     }
 
@@ -116,7 +116,7 @@ class GapRuleEngineTest {
         var findings = engine.detect(company("없음", null, "없음"), financials("125", "100"), List.of());
         assertThat(findings).hasSize(1);
         assertThat(findings.getFirst().changeType()).isEqualTo(ChangeType.NEEDS_CONFIRMATION);
-        assertThat(findings.getFirst().existingInfo()).isEqualTo("RM 정보 없음");
+        assertThat(findings.getFirst().existingInfo()).isEqualTo("기존 정보 없음");
         assertThat(findings.getFirst().latestInfo()).doesNotContain("계획이 없지만");
     }
 
