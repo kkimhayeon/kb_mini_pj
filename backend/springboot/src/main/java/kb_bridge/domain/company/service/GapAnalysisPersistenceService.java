@@ -54,14 +54,9 @@ public class GapAnalysisPersistenceService {
     public void save(String companyId, GapAnalysisResponse response, List<PlanFactEntity> confirmedFacts) {
         long companyPk = parseCompanyId(companyId);
         OffsetDateTime analysisAt = OffsetDateTime.now();
-        Map<String, RmPlanEntity> plansByDomain = rmPlanRepository.findByCompanyCompanyId(companyPk).stream()
-                .collect(Collectors.toMap(RmPlanEntity::getDomain, plan -> plan, (first, ignored) -> first));
-
         long analysisId = insertAnalysis(companyPk, analysisAt, response, confirmedFacts);
         for (GapResult gap : response.gaps()) {
-            Long planId = Optional.ofNullable(plansByDomain.get(toDomain(gap.gapType())))
-                    .map(RmPlanEntity::getPlanId)
-                    .orElse(null);
+            Long planId = gap.planId();
             long resultId = insertResult(analysisId, companyPk, planId, gap, response.financials());
             for (DisclosureEvidence evidence : gap.evidence()) {
                 extractReceiptNumber(evidence)
@@ -96,10 +91,13 @@ public class GapAnalysisPersistenceService {
                     """, new String[]{"analysis_id"});
             ps.setLong(1, companyId);
             ps.setTimestamp(2, Timestamp.from(analysisAt.toInstant()));
-            ps.setString(3, "SUCCESS");
+            ps.setString(3, response.retrievalStatus());
             ps.setString(4, toJson(Map.of(
                     "company", response.company(),
-                    "corpCode", response.corpCode()
+                    "corpCode", response.corpCode() == null ? "" : response.corpCode(),
+                    "sources", response.sources(),
+                    "outcome", response.outcome(),
+                    "comparisons", response.comparisons()
             )));
             ps.setString(5, toJson(Map.of(
                     "used", !confirmedFacts.isEmpty(),
@@ -107,9 +105,9 @@ public class GapAnalysisPersistenceService {
                             .map(this::factSnapshot)
                             .toList()
             )));
-            ps.setString(6, "gap-rule-v2");
+            ps.setString(6, "gap-rule-v4");
             ps.setString(7, null);
-            ps.setBoolean(8, false);
+            ps.setBoolean(8, response.scopeLimited());
             return ps;
         }, keyHolder);
         return keyHolder.getKey().longValue();
@@ -154,7 +152,7 @@ public class GapAnalysisPersistenceService {
             ps.setString(6, gap.assessmentStatus());
             ps.setInt(7, priority(gap.gapType()));
             ps.setString(8, gap.reason());
-            ps.setString(9, toJson(List.of(changedField(gap))));
+            ps.setString(9, toJson(gap.changes().isEmpty() ? List.of(changedField(gap)) : gap.changes()));
             ps.setString(10, financials == null ? null : toJson(financials));
             ps.setString(11, toJson(environmentContext(gap)));
             ps.setString(12, summary(gap));
@@ -188,6 +186,7 @@ public class GapAnalysisPersistenceService {
         snapshot.put("disclosed_at", evidence.date());
         snapshot.put("rcept_no", extractReceiptNumber(evidence).orElse(null));
         snapshot.put("source_url", evidence.url());
+        snapshot.put("details", evidence.details());
         return snapshot;
     }
 
@@ -271,6 +270,10 @@ public class GapAnalysisPersistenceService {
         snapshot.put("domain", fact.getDomain());
         snapshot.put("scope", fact.getScope());
         snapshot.put("planStatus", fact.getPlanStatus());
+        snapshot.put("amount", fact.getAmount());
+        snapshot.put("currency", fact.getCurrency());
+        snapshot.put("expectedAt", fact.getExpectedAt());
+        snapshot.put("expectedPrecision", fact.getExpectedPrecision());
         snapshot.put("factSource", fact.getFactSource());
         snapshot.put("extractionMethod", fact.getExtractionMethod());
         snapshot.put("verificationStatus", fact.getVerificationStatus());

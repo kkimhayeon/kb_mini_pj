@@ -20,7 +20,7 @@ RM 사전정보와 OpenDART 공개정보를 비교해 투자·자금조달·해�
 
 필수 환경: JDK 21 이상, Node.js/npm, OpenDART 인증키, Gemini API 키. Gradle은 설치된 JDK를 사용하고 Java 21 호환 코드로 컴파일합니다. 프론트엔드는 Node.js/npm과 기존 `frontend/node_modules`를 사용합니다.
 
-저장소 루트의 `.env`에 `DART_API_KEY`와 `GEMINI_API_KEY`를 설정합니다. Spring Boot는 backend 실행 경로 기준으로 이 파일을 선택적으로 읽습니다. 키를 소스 코드나 Git에 추가하지 마세요. Gemini 키가 비어 있으면 기존 규칙 기반 설명·질문을 사용하고, 키를 설정했지만 Gemini 호출이 실패하면 분석 API가 오류를 반환합니다.
+저장소 루트의 `.env`에 `DART_API_KEY`와 `GEMINI_API_KEY`를 설정합니다. Spring Boot는 backend 실행 경로 기준으로 이 파일을 선택적으로 읽습니다. 키를 소스 코드나 Git에 추가하지 마세요. Gemini 키가 비어 있거나 호출·응답 해석이 실패하면 규칙 기반 설명·질문을 사용합니다. 호출 실패 여부는 결과 화면에 표시하며 확인된 근거와 규칙 판정은 유지합니다.
 
 백엔드:
 

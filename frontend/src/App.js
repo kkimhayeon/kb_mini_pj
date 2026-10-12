@@ -1,12 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  answerQuestion,
   createConsultation,
   getCompanies,
   getCompanyAnalysis,
   getConsultations,
 } from './api';
 import './App.css';
+import AnswerEditor from './AnswerEditor';
+import AnalysisStatus, { outcomeLabel } from './AnalysisStatus';
+import PlanComparisons from './PlanComparisons';
+import { buildConsultationQuestions } from './consultationDraft';
 
 const DOMAIN_LABELS = {
   INVESTMENT: '투자',
@@ -42,11 +45,13 @@ function App() {
   const [selectedId, setSelectedId] = useState('');
   const [analysis, setAnalysis] = useState(null);
   const [consultations, setConsultations] = useState([]);
+  const [historyError, setHistoryError] = useState('');
   const [step, setStep] = useState(0);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
   const [loadingAnalysis, setLoadingAnalysis] = useState(false);
   const [savingAnswers, setSavingAnswers] = useState(false);
   const [answerDrafts, setAnswerDrafts] = useState({});
+  const saveInFlight = useRef(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -58,19 +63,19 @@ function App() {
   }, []);
 
   const selectedCompany = useMemo(
-    () => companies.find((company) => company.companyId === selectedId) || analysis?.company || null,
+    () => analysis?.company || companies.find((company) => company.companyId === selectedId) || null,
     [companies, selectedId, analysis]
   );
 
   const generatedQuestions = useMemo(() => {
     if (!analysis?.gaps) return [];
-    return analysis.gaps.flatMap((gap) => gap.questions.map((question, index) => ({
-      key: `${gap.gapType}-${index}`,
+    return analysis.gaps.flatMap((gap, gapIndex) => gap.questions.map((question, index) => ({
+      key: `${gap.gapType}-${gap.planId || 'unlinked'}-${gapIndex}-${index}`,
       gapType: gap.gapType,
       changeType: gap.changeType,
       displayLabel: gap.displayLabel,
       domain: gapDomain(gap.gapType),
-      planId: findPlanId(companies, selectedId, gapDomain(gap.gapType)),
+      planId: gap.planId ?? findPlanId(companies, selectedId, gapDomain(gap.gapType)),
       questionText: question,
       evidence: gap.evidence || [],
     })));
@@ -87,6 +92,7 @@ function App() {
     setSelectedId(company.companyId);
     setAnalysis(null);
     setConsultations([]);
+    setHistoryError('');
     setAnswerDrafts({});
     setSaveMessage('');
     setError('');
@@ -95,8 +101,12 @@ function App() {
     try {
       const result = await getCompanyAnalysis(company.companyId);
       setAnalysis(result);
-      setConsultations(await getConsultations(company.companyId));
       setStep(1);
+      try {
+        setConsultations(await getConsultations(company.companyId));
+      } catch {
+        setHistoryError('상담 이력을 불러오지 못했습니다. 분석 결과는 아래에서 확인할 수 있습니다.');
+      }
     } catch (analysisError) {
       setError(analysisError.message);
       setStep(0);
@@ -106,59 +116,37 @@ function App() {
   }
 
   async function saveAnswers() {
-    if (!selectedId || generatedQuestions.length === 0) return;
-
-    const answeredQuestions = generatedQuestions.filter((item) => (answerDrafts[item.key] || '').trim());
-    if (answeredQuestions.length === 0) {
+    if (!selectedId || generatedQuestions.length === 0 || saveInFlight.current) return;
+    if (!generatedQuestions.some((item) => answerDrafts[item.key]?.answerText?.trim())) {
       setError('저장할 답변을 1개 이상 입력해주세요.');
       return;
     }
 
+    saveInFlight.current = true;
     setSavingAnswers(true);
     setError('');
     setSaveMessage('');
 
     try {
+      const now = new Date().toISOString();
+      const questions = buildConsultationQuestions(generatedQuestions, answerDrafts, now);
       const consultation = await createConsultation(selectedId, {
-        consultedAt: new Date().toISOString(),
+        consultedAt: now,
         channel: 'OTHER',
         consultantName: 'RM',
         memo: 'Gap 분석 결과 기반 후속 상담',
-        questions: generatedQuestions.map((item) => ({
-          planId: item.planId,
-          questionSource: 'AI_GENERATED',
-          questionText: item.questionText,
-        })),
+        questions,
       });
 
-      for (const item of answeredQuestions) {
-        const qa = consultation.questions.find((question) => question.questionText === item.questionText);
-        if (!qa) continue;
-        const answerText = answerDrafts[item.key].trim();
-        await answerQuestion(qa.qaId, {
-          answerStatus: 'ANSWERED',
-          answerText,
-          answeredAt: new Date().toISOString(),
-          answeredBy: '고객',
-          planFact: {
-            planId: item.planId,
-            domain: item.domain,
-            scope: answerText,
-            planStatus: inferPlanStatus(answerText),
-            extractionMethod: 'RM_ENTERED',
-            verificationStatus: 'RM_CONFIRMED',
-            effectiveFrom: new Date().toISOString(),
-            note: 'Gap 분석 후속 상담 답변',
-          },
-        });
-      }
-
-      setConsultations(await getConsultations(selectedId));
+      setConsultations((items) => [consultation, ...items.filter(
+        (item) => item.consultationId !== consultation.consultationId
+      )]);
       setAnswerDrafts({});
-      setSaveMessage('상담 질문과 답변을 DB에 저장했습니다. 다음 분석부터 이 답변이 RM 확인 정보로 재사용됩니다.');
+      setSaveMessage('상담과 답변을 모두 저장했습니다. RM이 확인한 계획 항목만 다음 분석에 반영됩니다.');
     } catch (saveError) {
       setError(saveError.message);
     } finally {
+      saveInFlight.current = false;
       setSavingAnswers(false);
     }
   }
@@ -166,7 +154,7 @@ function App() {
   return (
     <main className="app-shell">
       <section className="workspace" aria-label="Corporate Client Gap Agent">
-        <StepNavigation step={step} setStep={setStep} analysis={analysis} />
+        <StepNavigation step={step} setStep={setStep} analysis={analysis} busy={savingAnswers} />
 
         {step === 0 && (
           <CompanyInputPage
@@ -184,6 +172,7 @@ function App() {
             company={selectedCompany}
             analysis={analysis}
             consultations={consultations}
+            historyError={historyError}
             onNext={() => setStep(2)}
           />
         )}
@@ -215,7 +204,7 @@ function App() {
   );
 }
 
-function StepNavigation({ step, setStep, analysis }) {
+function StepNavigation({ step, setStep, analysis, busy }) {
   return (
     <nav className="step-nav" aria-label="분석 단계">
       {STEP_LABELS.map((label, index) => (
@@ -223,7 +212,7 @@ function StepNavigation({ step, setStep, analysis }) {
           key={label}
           type="button"
           className={index === step ? 'active' : ''}
-          disabled={index > 0 && !analysis}
+          disabled={busy || (index > 0 && !analysis)}
           onClick={() => setStep(index)}
         >
           <span>{index + 1}</span>
@@ -267,7 +256,7 @@ function CompanyInputPage({ query, setQuery, companies, loadingCompanies, loadin
   );
 }
 
-function ComparisonPage({ company, analysis, consultations, onNext }) {
+function ComparisonPage({ company, analysis, consultations, historyError, onNext }) {
   const summary = summarizeGaps(analysis.gaps);
 
   return (
@@ -277,6 +266,8 @@ function ComparisonPage({ company, analysis, consultations, onNext }) {
         title="DB 정보와 API 정보를 한눈에 비교"
         description="RM이 보유한 기존 고객정보와 OpenDART 조회 결과를 같은 화면에서 확인합니다."
       />
+
+      <AnalysisStatus analysis={analysis} />
 
       <section className="judgement-summary" aria-label="판정 요약">
         <SummaryTile label="전체 후보" value={`${analysis.gaps.length}건`} />
@@ -303,13 +294,13 @@ function ComparisonPage({ company, analysis, consultations, onNext }) {
             <InfoItem label="기업코드" value={analysis.corpCode || '조회 정보 없음'} />
             <InfoItem label="분석 결과" value={analysis.message} wide />
           </dl>
-          <FinancialSummary financials={analysis.financials} />
+          <FinancialSummary financials={analysis.financials} source={analysis.sources?.find((item) => item.source === 'FINANCIALS')} />
         </section>
       </div>
 
       <section className="history-strip">
         <h2>저장된 상담 이력</h2>
-        {consultations.length === 0 ? (
+        {historyError ? <p role="alert">{historyError}</p> : consultations.length === 0 ? (
           <p>아직 저장된 상담 질문과 답변이 없습니다.</p>
         ) : (
           <ul>
@@ -337,15 +328,17 @@ function GapQuestionPage({ analysis, onPrev, onNext }) {
         description="판정 유형별로 기존 RM 정보, 최신 공개정보, 판단 이유, 후속 질문을 묶어서 보여줍니다."
       />
 
+      <AnalysisStatus analysis={analysis} />
+      <PlanComparisons comparisons={analysis.comparisons} />
       {analysis.gaps.length === 0 ? (
         <div className="empty-box">
-          <h2>확인된 Gap 없음</h2>
-          <p>현재 조회 가능한 공개정보 기준으로 규칙에 걸린 변경 후보가 없습니다.</p>
+          <h2>{outcomeLabel(analysis.outcome)}</h2>
+          <p>{analysis.message}</p>
         </div>
       ) : (
         <div className="gap-list">
-          {analysis.gaps.map((gap) => (
-            <article className={`gap-card severity-${(gap.severity || 'LOW').toLowerCase()}`} key={gap.gapType}>
+          {analysis.gaps.map((gap, gapIndex) => (
+            <article className={`gap-card severity-${(gap.severity || 'LOW').toLowerCase()}`} key={`${gap.gapType}-${gap.planId || 'unlinked'}-${gapIndex}`}>
               <div className="gap-card-header">
                 <div>
                   <span>{GAP_LABELS[gap.gapType] || gap.gapType}</span>
@@ -375,6 +368,10 @@ function GapQuestionPage({ analysis, onPrev, onNext }) {
               <div className="reason-box">
                 <h3>판정 근거</h3>
                 <p>{gap.reason}</p>
+                <p className="hint">{gap.explanationSource === 'Gemini' ? 'Gemini 보조 설명·질문'
+                  : gap.explanationSource === 'Rule fallback (Gemini failed)'
+                    ? 'Gemini 응답 실패 · 규칙 기반 기본 설명·질문 사용'
+                    : '규칙 기반 기본 설명·질문'}</p>
               </div>
               <div className="question-box">
                 <h3>다음 상담 질문</h3>
@@ -399,7 +396,7 @@ function AnswerPage({ questions, answerDrafts, setAnswerDrafts, consultations, s
       <PageHeader
         eyebrow="PAGE 3"
         title="질문 답변 저장"
-        description="상담 질문에 대한 고객 답변을 입력하면 상담 이력과 구조화된 계획 근거로 DB에 저장됩니다."
+        description="답변 원문을 기록하고, 다음 분석에 반영할 계획 항목을 입력해 확인해주세요. 입력하지 않은 항목은 기존 정보를 유지합니다."
       />
 
       {questions.length === 0 ? (
@@ -410,21 +407,18 @@ function AnswerPage({ questions, answerDrafts, setAnswerDrafts, consultations, s
       ) : (
         <div className="answer-list">
           {questions.map((question, index) => (
-            <article className="answer-item" key={question.key}>
-              <div className="answer-question">
-                <span>{DOMAIN_LABELS[question.domain]} 질문 {index + 1} · {question.displayLabel}</span>
-                <p>{question.questionText}</p>
-              </div>
-              <textarea
-                value={answerDrafts[question.key] || ''}
-                onChange={(event) => setAnswerDrafts((drafts) => ({
-                  ...drafts,
-                  [question.key]: event.target.value,
-                }))}
-                placeholder="고객 답변을 입력해주세요"
-                rows="4"
-              />
-            </article>
+            <AnswerEditor
+              key={question.key}
+              question={question}
+              number={index + 1}
+              domainLabel={DOMAIN_LABELS[question.domain]}
+              draft={answerDrafts[question.key]}
+              disabled={savingAnswers}
+              onChange={(draft) => setAnswerDrafts((drafts) => ({
+                ...drafts,
+                [question.key]: draft,
+              }))}
+            />
           ))}
         </div>
       )}
@@ -449,7 +443,8 @@ function AnswerPage({ questions, answerDrafts, setAnswerDrafts, consultations, s
         onPrev={onPrev}
         onSave={onSave}
         saveLabel={savingAnswers ? '저장 중' : 'DB에 답변 저장'}
-        saveDisabled={savingAnswers || questions.length === 0}
+        prevDisabled={savingAnswers}
+        saveDisabled={savingAnswers || !questions.some((question) => answerDrafts[question.key]?.answerText?.trim())}
       />
     </div>
   );
@@ -474,10 +469,10 @@ function PageHeader({ eyebrow, title, description }) {
   );
 }
 
-function FooterActions({ onPrev, onNext, onSave, nextLabel, saveLabel, saveDisabled }) {
+function FooterActions({ onPrev, onNext, onSave, nextLabel, saveLabel, saveDisabled, prevDisabled }) {
   return (
     <div className="footer-actions">
-      {onPrev && <button type="button" className="secondary-button" onClick={onPrev}>이전</button>}
+      {onPrev && <button type="button" className="secondary-button" onClick={onPrev} disabled={prevDisabled}>이전</button>}
       <div />
       {onNext && <button type="button" onClick={onNext}>{nextLabel}</button>}
       {onSave && <button type="button" onClick={onSave} disabled={saveDisabled}>{saveLabel}</button>}
@@ -494,19 +489,21 @@ function InfoItem({ label, value, wide }) {
   );
 }
 
-function FinancialSummary({ financials }) {
+function FinancialSummary({ financials, source }) {
   if (!financials) {
-    return <p className="notice">최근 재무정보를 확인하지 못했습니다.</p>;
+    return <p className="notice">{source?.message || '최근 재무정보를 확인하지 못했습니다.'}</p>;
   }
 
   return (
     <dl className="financial-grid">
       <InfoItem label="사업연도" value={financials.period} />
-      <InfoItem label="매출액" value={formatAmount(financials.revenue)} />
-      <InfoItem label="영업이익" value={formatAmount(financials.operatingProfit)} />
-      <InfoItem label="단기차입금" value={formatAmount(financials.shortTermDebt)} />
-      <InfoItem label="전기 단기차입금" value={formatAmount(financials.priorPeriodShortTermDebt)} />
-      <InfoItem label="영업현금흐름" value={formatAmount(financials.operatingCashFlow)} wide />
+      <InfoItem label="재무 기준" value={financials.statementBasis === 'CFS' ? '연결' : financials.statementBasis === 'OFS' ? '별도' : '미확인'} />
+      <InfoItem label="비교 기준" value="동일 연간 보고서의 당기·전기 금액" />
+      <InfoItem label="매출액" value={formatAmount(financials.revenue, financials.currency)} />
+      <InfoItem label="영업이익" value={formatAmount(financials.operatingProfit, financials.currency)} />
+      <InfoItem label="단기차입금" value={formatAmount(financials.shortTermDebt, financials.currency)} />
+      <InfoItem label="전기 단기차입금" value={formatAmount(financials.priorPeriodShortTermDebt, financials.currency)} />
+      <InfoItem label="영업현금흐름" value={formatAmount(financials.operatingCashFlow, financials.currency)} wide />
     </dl>
   );
 }
@@ -568,23 +565,14 @@ function resolveCompany(companies, query) {
 
 function findPlanId(companies, selectedId, domain) {
   const selected = companies.find((company) => company.companyId === selectedId);
-  return selected?.plans?.find((plan) => plan.domain === domain)?.planId || null;
+  const matching = selected?.plans?.filter((plan) => plan.domain === domain) || [];
+  return matching.length === 1 ? matching[0].planId : null;
 }
 
 function gapDomain(gapType) {
   if (gapType === 'FUNDING_PLAN_GAP') return 'FUNDING';
   if (gapType === 'FX_BUSINESS_GAP') return 'FX';
   return 'INVESTMENT';
-}
-
-function inferPlanStatus(answerText) {
-  const normalized = normalize(answerText);
-  if (normalized.includes('없음') || normalized.includes('아니')) return 'NOT_APPLICABLE';
-  if (normalized.includes('완료')) return 'COMPLETED';
-  if (normalized.includes('취소') || normalized.includes('철회')) return 'CANCELED';
-  if (normalized.includes('진행')) return 'IN_PROGRESS';
-  if (normalized.includes('검토')) return 'REVIEW';
-  return 'PLANNED';
 }
 
 function normalize(value) {
@@ -599,9 +587,9 @@ function formatDateTime(value) {
   }).format(new Date(value));
 }
 
-function formatAmount(amount) {
+function formatAmount(amount, currency) {
   if (amount === null || amount === undefined) return '확인된 정보 없음';
-  return `${new Intl.NumberFormat('ko-KR').format(amount)} 원`;
+  return `${new Intl.NumberFormat('ko-KR').format(amount)} ${currency === 'KRW' ? '원' : currency || '통화 미확인'}`;
 }
 
 export default App;

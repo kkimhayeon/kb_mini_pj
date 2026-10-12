@@ -6,6 +6,9 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
+import java.net.http.HttpClient;
+import java.time.Duration;
 
 import tools.jackson.databind.JsonNode;
 
@@ -21,7 +24,11 @@ public class GeminiClient {
             @Value("${gemini.api.key:}") String apiKey,
             @Value("${gemini.api.model:gemini-2.5-flash}") String model
     ) {
+        var requestFactory = new JdkClientHttpRequestFactory(HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10)).build());
+        requestFactory.setReadTimeout(Duration.ofSeconds(30));
         this.restClient = RestClient.builder()
+                .requestFactory(requestFactory)
                 .baseUrl(baseUrl)
                 .build();
         this.apiKey = apiKey;

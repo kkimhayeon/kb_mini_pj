@@ -1,6 +1,8 @@
 package kb_bridge.agent;
 
 import java.util.List;
+import java.util.Optional;
+import org.springframework.web.client.RestClientException;
 
 import org.springframework.stereotype.Component;
 
@@ -46,11 +48,20 @@ public class GapAgent {
         String message = gaps.isEmpty()
                 ? "현재 RM 사전정보와 확인 가능한 공개정보 사이에서 변경 후보를 찾지 못했습니다."
                 : gaps.size() + "개의 고객정보 업데이트 후보를 확인했습니다.";
-        return new GapAnalysisResponse(company, corpCode, financials, gaps, message);
+        return new GapAnalysisResponse(company, corpCode, financials, gaps, message)
+                .withComparisons(kb_bridge.rule.PlanComparisonEngine.compare(company, disclosures));
     }
 
     private GapResult toGapResult(Finding finding) {
-        var insight = geminiInsightService.generate(finding);
+        Optional<GeminiInsightService.Insight> insight;
+        boolean geminiFailed = false;
+        try {
+            insight = geminiInsightService.generate(finding);
+        } catch (RestClientException | IllegalStateException exception) {
+            // Keep verified facts and rule results when optional explanation generation fails.
+            insight = Optional.empty();
+            geminiFailed = true;
+        }
         return new GapResult(
                 finding.type(),
                 changeType(finding),
@@ -61,26 +72,18 @@ public class GapAgent {
                 finding.latestInfo(),
                 insight.map(GeminiInsightService.Insight::reason)
                         .orElse(reasonFor(finding)),
-                insight.isPresent() ? "Gemini" : "Rule fallback",
+                insight.isPresent() ? "Gemini" : geminiFailed ? "Rule fallback (Gemini failed)" : "Rule fallback",
                 finding.evidence(),
                 insight.map(GeminiInsightService.Insight::questions)
-                        .orElseGet(() -> questionsFor(finding))
+                        .orElseGet(() -> questionsFor(finding)),
+                finding.planId(),
+                finding.changes()
         );
     }
 
 
     private String changeType(Finding finding) {
-        String latestInfo = finding.latestInfo() == null ? "" : finding.latestInfo();
-        if (latestInfo.contains("검토 단계") || latestInfo.contains("유사한") || latestInfo.contains("불명확")) {
-            return "NEEDS_CONFIRMATION";
-        }
-        if (latestInfo.contains("없지만")) {
-            return "CONFLICT";
-        }
-        if (latestInfo.contains("다른")) {
-            return "SPECIFIED";
-        }
-        return "NEW_INFO";
+        return finding.changeType().name();
     }
 
     private String assessmentStatus(Finding finding) {

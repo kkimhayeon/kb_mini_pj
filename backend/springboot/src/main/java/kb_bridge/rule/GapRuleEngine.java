@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import kb_bridge.domain.company.entity.Company;
 import kb_bridge.domain.company.entity.DisclosureEvidence;
 import kb_bridge.domain.company.entity.FinancialSnapshot;
+import kb_bridge.domain.company.entity.PlanComparison.FieldChange;
 
 @Component
 public class GapRuleEngine {
@@ -25,13 +26,26 @@ public class GapRuleEngine {
         FX_BUSINESS_GAP
     }
 
-    public record Finding(GapType type, String existingInfo, String latestInfo, List<DisclosureEvidence> evidence) {
+    public enum ChangeType {
+        CONFLICT,
+        NEEDS_CONFIRMATION,
+        SPECIFIED,
+        NEW_INFO
+    }
+
+    public record Finding(GapType type, ChangeType changeType, String existingInfo, String latestInfo,
+                          List<DisclosureEvidence> evidence, Long planId, List<FieldChange> changes) {
+        public Finding(GapType type, ChangeType changeType, String existingInfo, String latestInfo,
+                       List<DisclosureEvidence> evidence) {
+            this(type, changeType, existingInfo, latestInfo, evidence, null, List.of());
+        }
     }
 
     private enum PlanSignal {
         EXPLICIT_NONE,
         REVIEW,
         PLANNED,
+        INACTIVE,
         UNKNOWN
     }
 
@@ -39,6 +53,7 @@ public class GapRuleEngine {
             String domain,
             GapType gapType,
             String rmPlan,
+            PlanSignal signal,
             String noPlanLatestInfo,
             String changedLatestInfo,
             String reviewLatestInfo,
@@ -57,23 +72,45 @@ public class GapRuleEngine {
     ) {
         List<Finding> findings = new ArrayList<>();
         List<DisclosureEvidence> safeDisclosures = disclosures == null ? List.of() : disclosures;
+        var comparisons = PlanComparisonEngine.compare(company, safeDisclosures);
+        var matched = comparisons.stream().filter(item -> "NAME_MATCH".equals(item.matchStatus())).toList();
+        for (var comparison : matched) {
+            if ("NO_DIFFERENCE".equals(comparison.comparisonStatus()) || "HISTORICAL".equals(comparison.comparisonStatus())) continue;
+            GapType type = switch (comparison.domain()) {
+                case "FUNDING" -> GapType.FUNDING_PLAN_GAP;
+                case "FX" -> GapType.FX_BUSINESS_GAP;
+                default -> GapType.INVESTMENT_PLAN_GAP;
+            };
+            String existing = company.plans().stream().filter(plan -> plan.planId().equals(comparison.planId()))
+                    .findFirst().orElseThrow().scope();
+            String difference = comparison.changes().stream().map(change -> change.field() + ": " + change.before() + " → " + change.after())
+                    .collect(java.util.stream.Collectors.joining("; "));
+            findings.add(new Finding(type, ChangeType.NEEDS_CONFIRMATION, existing,
+                    comparison.message() + (difference.isEmpty() ? "" : " " + difference),
+                    List.of(comparison.evidence()), comparison.planId(), comparison.changes()));
+        }
+        safeDisclosures = safeDisclosures.stream().filter(item -> matched.stream()
+                .noneMatch(comparison -> comparison.evidence().equals(item))).toList();
 
         for (DomainRule rule : rules(company)) {
             List<DisclosureMatch> matches = matchDisclosures(safeDisclosures, rule);
             List<DisclosureEvidence> evidence = matches.stream()
                     .map(DisclosureMatch::evidence)
                     .toList();
-            PlanSignal signal = classifyPlan(rule.rmPlan());
+            PlanSignal signal = rule.signal();
 
             if (!evidence.isEmpty()) {
                 findings.add(toFinding(rule, signal, evidence));
             } else if (rule.gapType() == GapType.FUNDING_PLAN_GAP
-                    && signal == PlanSignal.EXPLICIT_NONE
+                    && (signal == PlanSignal.EXPLICIT_NONE || signal == PlanSignal.UNKNOWN)
                     && hasMaterialDebtIncrease(financials)) {
                 findings.add(new Finding(
                         GapType.FUNDING_PLAN_GAP,
+                        signal == PlanSignal.EXPLICIT_NONE ? ChangeType.CONFLICT : ChangeType.NEEDS_CONFIRMATION,
                         existingInfo(rule.rmPlan(), signal),
-                        "RM 정보에는 자금조달 계획이 없지만 OpenDART 재무정보에서 단기차입금이 전년 대비 20% 이상 증가했습니다.",
+                        signal == PlanSignal.EXPLICIT_NONE
+                                ? "RM 정보에는 자금조달 계획이 없지만 OpenDART 재무정보에서 단기차입금이 전년 대비 20% 이상 증가했습니다."
+                                : "RM 자금조달 정보가 미확인인 상태에서 단기차입금이 전년 대비 20% 이상 증가하여 확인이 필요합니다.",
                         List.of(financialEvidence(financials))
                 ));
             }
@@ -86,7 +123,8 @@ public class GapRuleEngine {
     }
 
     public boolean needsFinancialStatements(Company company) {
-        return classifyPlan(company.fundingPlan()) == PlanSignal.EXPLICIT_NONE;
+        PlanSignal signal = classifyPlan(company, "FUNDING", company.fundingPlan());
+        return signal == PlanSignal.EXPLICIT_NONE || signal == PlanSignal.UNKNOWN;
     }
 
     public boolean needsDisclosures(Company company) {
@@ -99,16 +137,18 @@ public class GapRuleEngine {
                         "INVESTMENT",
                         GapType.INVESTMENT_PLAN_GAP,
                         company.investmentPlan(),
+                        classifyPlan(company, "INVESTMENT", company.investmentPlan()),
                         "RM 정보에는 투자 계획이 없지만 OpenDART에서 투자 또는 시설 관련 공시가 발견되었습니다.",
                         "기존 RM 투자 정보와 다른 범위의 투자 또는 시설 관련 공시가 발견되었습니다.",
                         "기존 RM 정보는 투자 검토 단계였고, OpenDART에서 관련 공시가 발견되어 진행 상태 확인이 필요합니다.",
-                        List.of("시설투자", "신규시설", "유형자산취득", "공장신설", "공장", "설비투자", "시설증설", "투자결정", "타법인주식취득"),
+                        List.of("시설투자", "신규시설", "유형자산취득", "유형자산양수", "타법인주식및출자증권양수", "공장신설", "공장", "설비투자", "시설증설", "투자결정", "타법인주식취득"),
                         List.of("취소", "철회", "해지", "청산", "처분")
                 ),
                 new DomainRule(
                         "FUNDING",
                         GapType.FUNDING_PLAN_GAP,
                         company.fundingPlan(),
+                        classifyPlan(company, "FUNDING", company.fundingPlan()),
                         "RM 정보에는 자금조달 계획이 없지만 OpenDART에서 차입 또는 증자 관련 공시가 발견되었습니다.",
                         "기존 RM 자금조달 정보와 다른 자금조달 관련 공시가 발견되었습니다.",
                         "기존 RM 정보는 자금조달 검토 단계였고, OpenDART에서 관련 공시가 발견되어 진행 상태 확인이 필요합니다.",
@@ -119,25 +159,39 @@ public class GapRuleEngine {
                         "FX",
                         GapType.FX_BUSINESS_GAP,
                         company.foreignBusinessPlan(),
+                        classifyPlan(company, "FX", company.foreignBusinessPlan()),
                         "RM 정보에는 해외사업 또는 외환 관련 계획이 없지만 OpenDART에서 해외사업, 출자, 법인 관련 공시가 발견되었습니다.",
                         "기존 RM 해외사업 정보와 다른 해외사업 또는 출자 관련 공시가 발견되었습니다.",
                         "기존 RM 정보는 해외사업 검토 단계였고, OpenDART에서 관련 공시가 발견되어 진행 상태 확인이 필요합니다.",
-                        List.of("해외법인", "해외사업", "해외진출", "해외투자", "해외공장", "국외사업", "외화", "환위험", "출자", "타법인주식취득"),
+                        List.of("해외법인", "해외사업", "해외진출", "해외투자", "해외공장", "국외사업", "외화", "환위험", "출자", "타법인주식취득", "타법인주식및출자증권양수"),
                         List.of("취소", "철회", "해지", "청산", "처분")
                 )
         );
     }
 
     private Finding toFinding(DomainRule rule, PlanSignal signal, List<DisclosureEvidence> evidence) {
+        if (evidence.stream().anyMatch(item -> containsAny(normalize(item.title()), rule.excludeKeywords()))) {
+            return new Finding(rule.gapType(), ChangeType.NEEDS_CONFIRMATION,
+                    existingInfo(rule.rmPlan(), signal),
+                    "기존 RM 계획과 관련된 취소·철회·종료 공시가 발견되어 동일 계획의 변경인지 확인이 필요합니다.",
+                    evidence);
+        }
         String latestInfo = switch (signal) {
             case EXPLICIT_NONE -> rule.noPlanLatestInfo();
             case REVIEW -> rule.reviewLatestInfo();
             case PLANNED -> sameScopeAlreadyKnown(rule.rmPlan(), evidence)
                     ? "기존 RM 계획과 유사한 공개정보가 발견되었지만, 금액·시기·진행상태 재확인이 필요합니다."
                     : rule.changedLatestInfo();
+            case INACTIVE -> "기존 RM 계획은 완료 또는 취소 상태이며, 관련 공시가 동일 건인지 추가 확인이 필요합니다.";
             case UNKNOWN -> "RM 정보가 불명확한 상태에서 OpenDART 관련 공시가 발견되어 확인이 필요합니다.";
         };
-        return new Finding(rule.gapType(), existingInfo(rule.rmPlan(), signal), latestInfo, evidence);
+        ChangeType changeType = switch (signal) {
+            case EXPLICIT_NONE -> ChangeType.CONFLICT;
+            case REVIEW, INACTIVE, UNKNOWN -> ChangeType.NEEDS_CONFIRMATION;
+            case PLANNED -> sameScopeAlreadyKnown(rule.rmPlan(), evidence)
+                    ? ChangeType.NEEDS_CONFIRMATION : ChangeType.SPECIFIED;
+        };
+        return new Finding(rule.gapType(), changeType, existingInfo(rule.rmPlan(), signal), latestInfo, evidence);
     }
 
     private List<DisclosureMatch> matchDisclosures(List<DisclosureEvidence> disclosures, DomainRule rule) {
@@ -150,7 +204,17 @@ public class GapRuleEngine {
 
     private int score(DisclosureEvidence disclosure, DomainRule rule) {
         String title = normalize(disclosure.title());
-        if (title.isBlank() || containsAny(title, rule.excludeKeywords())) {
+        if (title.isBlank() || !containsAny(title, rule.includeKeywords())) {
+            return 0;
+        }
+        // A domestic acquisition alone is not evidence of overseas business.
+        if (disclosure.details() != null && !rule.domain().equals(disclosure.details().domain())) return 0;
+        if (rule.gapType() == GapType.FX_BUSINESS_GAP
+                && !(disclosure.details() != null && "FX".equals(disclosure.details().domain()))
+                && !containsAny(title, List.of("해외", "국외", "외화", "환위험"))) {
+            return 0;
+        }
+        if (containsAny(title, rule.excludeKeywords()) && !relatesToExistingPlan(rule, title)) {
             return 0;
         }
         int score = 0;
@@ -163,6 +227,17 @@ public class GapRuleEngine {
             score += 1;
         }
         return score;
+    }
+
+    private boolean relatesToExistingPlan(DomainRule rule, String title) {
+        PlanSignal signal = rule.signal();
+        if (signal != PlanSignal.PLANNED && signal != PlanSignal.REVIEW) {
+            return false;
+        }
+        String plan = normalize(rule.rmPlan());
+        return rule.includeKeywords().stream()
+                .map(this::normalize)
+                .anyMatch(keyword -> title.contains(keyword) && plan.contains(keyword));
     }
 
     private boolean sameScopeAlreadyKnown(String rmPlan, List<DisclosureEvidence> evidence) {
@@ -192,9 +267,28 @@ public class GapRuleEngine {
                 .toList();
     }
 
+    private PlanSignal classifyPlan(Company company, String domain, String fallback) {
+        List<Company.PlanSummary> plans = company.plans().stream()
+                .filter(plan -> domain.equals(plan.domain()))
+                .toList();
+        if (plans.stream().noneMatch(plan -> plan.planStatus() != null)) {
+            return classifyPlan(fallback);
+        }
+        if (plans.size() != 1) {
+            return PlanSignal.UNKNOWN;
+        }
+        return switch (plans.getFirst().planStatus()) {
+            case "NOT_APPLICABLE" -> PlanSignal.EXPLICIT_NONE;
+            case "REVIEW" -> PlanSignal.REVIEW;
+            case "PLANNED", "IN_PROGRESS" -> PlanSignal.PLANNED;
+            case "COMPLETED", "CANCELED" -> PlanSignal.INACTIVE;
+            default -> PlanSignal.UNKNOWN;
+        };
+    }
+
     private PlanSignal classifyPlan(String plan) {
         if (plan == null || plan.isBlank()) {
-            return PlanSignal.EXPLICIT_NONE;
+            return PlanSignal.UNKNOWN;
         }
         String normalized = normalize(plan);
         if (normalized.contains("해당분야계획없음")

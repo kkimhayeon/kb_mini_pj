@@ -67,6 +67,7 @@ class GeminiInsightServiceTest {
     private Finding finding() {
         return new Finding(
                 GapType.INVESTMENT_PLAN_GAP,
+                kb_bridge.rule.GapRuleEngine.ChangeType.NEEDS_CONFIRMATION,
                 "없음",
                 "시설투자 관련 공시 확인",
                 List.of(new DisclosureEvidence("OpenDART", "시설투자 결정", "2026-06-01", "https://dart.fss.or.kr"))

@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import org.springframework.web.client.RestClientException;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
@@ -17,6 +19,9 @@ import javax.xml.stream.XMLStreamReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
+import java.net.http.HttpClient;
+import java.time.Duration;
 
 import kb_bridge.domain.company.entity.DisclosureEvidence;
 import kb_bridge.domain.company.entity.FinancialSnapshot;
@@ -37,7 +42,11 @@ public class DartClient {
             @Value("${dart.api.base-url}") String baseUrl,
             @Value("${dart.api.key}") String apiKey
     ) {
+        var requestFactory = new JdkClientHttpRequestFactory(HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10)).build());
+        requestFactory.setReadTimeout(Duration.ofSeconds(20));
         this.restClient = RestClient.builder()
+                .requestFactory(requestFactory)
                 .baseUrl(baseUrl)
                 .build();
         this.apiKey = apiKey;
@@ -90,80 +99,96 @@ public class DartClient {
 
     public FinancialSnapshot getRecentFinancials(String corpCode) {
         int currentYear = LocalDate.now().getYear();
-        DartFinancialResponse current = null;
-        int fiscalYear = currentYear;
         for (int year = currentYear; year >= currentYear - 3; year--) {
-            DartFinancialResponse response = getAnnualFinancials(corpCode, year, "CFS");
-            if (response == null || response.list() == null || response.list().isEmpty()) {
-                response = getAnnualFinancials(corpCode, year, "OFS");
-            }
-            if (response != null && response.list() != null && !response.list().isEmpty()) {
-                current = response;
-                fiscalYear = year;
-                break;
+            for (String basis : List.of("CFS", "OFS")) {
+                DartFinancialResponse response = getAnnualFinancials(corpCode, year, basis);
+                if (response != null && !response.list().isEmpty()) {
+                    // Prior-year amounts come from this exact report, including its restatements.
+                    return FinancialNormalizer.normalize(year, basis, response.list());
+                }
             }
         }
-        if (current == null) {
-            return null;
-        }
+        return null;
+    }
 
-        DartFinancialResponse previous = getAnnualFinancials(corpCode, fiscalYear - 1, "CFS");
-        if (previous == null || previous.list() == null || previous.list().isEmpty()) {
-            previous = getAnnualFinancials(corpCode, fiscalYear - 1, "OFS");
-        }
-        List<DartFinancialResponse.Item> currentItems = current.list();
-        List<DartFinancialResponse.Item> previousItems =
-                previous == null || previous.list() == null ? List.of() : previous.list();
-        return new FinancialSnapshot(
-                Integer.toString(fiscalYear),
-                findAmount(currentItems, "매출액", "영업수익", "수익"),
-                findAmount(currentItems, "영업이익"),
-                findAmount(currentItems, "단기차입금"),
-                findAmount(previousItems, "단기차입금"),
-                findAmount(currentItems, "영업활동 현금흐름", "영업활동으로 인한 현금흐름")
-        );
+    public record DisclosureBatch(List<DisclosureEvidence> items, boolean truncated, boolean detailsIncomplete) {
+        public DisclosureBatch(List<DisclosureEvidence> items, boolean truncated) { this(items, truncated, false); }
     }
 
     public List<DisclosureEvidence> getRecentDisclosures(String corpCode) {
+        return getDisclosureBatch(corpCode).items();
+    }
+
+    public DisclosureBatch getDisclosureBatch(String corpCode) {
         ensureApiKey();
         String startDate = LocalDate.now().minusYears(1).format(DART_DATE);
         String endDate = LocalDate.now().format(DART_DATE);
-        DartDisclosureResponse response = restClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/list.json")
-                        .queryParam("crtfc_key", apiKey)
-                        .queryParam("corp_code", corpCode)
-                        .queryParam("bgn_de", startDate)
-                        .queryParam("end_de", endDate)
-                        .queryParam("page_no", 1)
-                        .queryParam("page_count", 100)
-                        .queryParam("sort", "date")
-                        .queryParam("sort_mth", "desc")
-                        .build())
-                .retrieve()
-                .body(DartDisclosureResponse.class);
-        if (response == null || "013".equals(response.status())) {
-            return List.of();
+        Map<String, DisclosureEvidence> found = new LinkedHashMap<>();
+        boolean incomplete = false;
+        Integer expectedCount = null;
+        int expectedPages = 0;
+        for (int page = 1; ; page++) {
+            DartDisclosureResponse response;
+            try {
+                response = disclosurePage(corpCode, startDate, endDate, page);
+            } catch (RestClientException | IllegalStateException exception) {
+                if (page == 1) throw exception;
+                incomplete = true;
+                break;
+            }
+            if ("013".equals(response.status())) {
+                incomplete |= page <= expectedPages || (expectedCount != null && found.size() < expectedCount);
+                break;
+            }
+            if (response.totalPage() != null) expectedPages = response.totalPage();
+            if (expectedCount != null && response.totalCount() != null
+                    && !expectedCount.equals(response.totalCount())) incomplete = true;
+            if (response.totalCount() != null) expectedCount = response.totalCount();
+            int before = found.size();
+            for (var item : response.list()) {
+                if (item == null || item.receiptNumber() == null || !item.receiptNumber().matches("[0-9]{14}")
+                        || item.reportName() == null || item.reportName().isBlank()) {
+                    incomplete = true;
+                    continue;
+                }
+                String date;
+                try { date = formatDisclosureDate(item.receiptDate()); }
+                catch (java.time.DateTimeException exception) { incomplete = true; continue; }
+                found.putIfAbsent(item.receiptNumber(), new DisclosureEvidence("OpenDART",
+                        item.reportName(), date, "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=" + item.receiptNumber()));
+            }
+            boolean last = response.totalPage() != null ? page >= response.totalPage()
+                    : expectedCount != null ? page * 100L >= expectedCount : response.list().size() < 100;
+            if (last) {
+                incomplete |= expectedCount != null && found.size() < expectedCount;
+                break;
+            }
+            // Broken pagination must not hang an analysis or be presented as a complete result.
+            if (found.size() == before || page >= 200) { incomplete = true; break; }
         }
-        checkStatus(response.status(), response.message(), "recent disclosure");
-        if (response.list() == null) {
-            return List.of();
-        }
-        return response.list().stream()
-                .map(item -> new DisclosureEvidence(
-                        "OpenDART",
-                        item.reportName(),
-                        formatDisclosureDate(item.receiptDate()),
-                        "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=" + item.receiptNumber()
-                ))
-                .toList();
+        var enriched = new DartDisclosureDetails(restClient, apiKey).enrich(corpCode, startDate, endDate, List.copyOf(found.values()));
+        return new DisclosureBatch(enriched.items(), incomplete, enriched.incomplete());
+    }
+
+    private DartDisclosureResponse disclosurePage(String corpCode, String start, String end, int page) {
+        var response = restClient.get().uri(uri -> uri.path("/list.json")
+                .queryParam("crtfc_key", apiKey).queryParam("corp_code", corpCode)
+                .queryParam("bgn_de", start).queryParam("end_de", end)
+                .queryParam("last_reprt_at", "Y").queryParam("page_no", page).queryParam("page_count", 100)
+                .queryParam("sort", "date").queryParam("sort_mth", "desc").build())
+                .retrieve().body(DartDisclosureResponse.class);
+        if (response == null) throw new IllegalStateException("Empty disclosure response.");
+        if ("013".equals(response.status())) return response;
+        checkStatus(response.status(), response.message(), "disclosures");
+        if (response.list() == null) throw new IllegalStateException("Missing disclosure list.");
+        return response;
     }
 
     private DartFinancialResponse getAnnualFinancials(String corpCode, int year, String financialStatementDivision) {
         ensureApiKey();
         DartFinancialResponse response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/fnlttSinglAcnt.json")
+                        .path("/fnlttSinglAcntAll.json")
                         .queryParam("crtfc_key", apiKey)
                         .queryParam("corp_code", corpCode)
                         .queryParam("bsns_year", year)
@@ -172,10 +197,16 @@ public class DartClient {
                         .build())
                 .retrieve()
                 .body(DartFinancialResponse.class);
-        if (response == null || "013".equals(response.status())) {
+        if (response == null) {
+            throw new IllegalStateException("OpenDART returned an empty financial response.");
+        }
+        if ("013".equals(response.status())) {
             return null;
         }
         checkStatus(response.status(), response.message(), "annual financial statements");
+        if (response.list() == null) {
+            throw new IllegalStateException("OpenDART returned no financial list.");
+        }
         return response;
     }
 
@@ -232,25 +263,6 @@ public class DartClient {
             throw new IllegalStateException("OpenDART corporate-code archive contained no companies.");
         }
         return Map.copyOf(codes);
-    }
-
-    private BigDecimal findAmount(List<DartFinancialResponse.Item> items, String... accountNames) {
-        for (String accountName : accountNames) {
-            for (DartFinancialResponse.Item item : items) {
-                if (item.accountName() != null && item.accountName().contains(accountName)) {
-                    String amount = item.currentAmount();
-                    if (amount != null && !amount.isBlank() && !"-".equals(amount)) {
-                        try {
-                            return new BigDecimal(amount.replace(",", ""));
-                        } catch (NumberFormatException e) {
-                            throw new IllegalStateException(
-                                    "Invalid amount in OpenDART financial response: " + amount, e);
-                        }
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     private String normalizeName(String value) {

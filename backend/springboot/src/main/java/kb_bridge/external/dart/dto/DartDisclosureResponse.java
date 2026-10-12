@@ -7,7 +7,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record DartDisclosureResponse(
         String status,
         String message,
-        List<Item> list
+        List<Item> list,
+        @JsonProperty("total_count") Integer totalCount,
+        @JsonProperty("total_page") Integer totalPage
 ) {
     public record Item(
             @JsonProperty("corp_name") String corpName,

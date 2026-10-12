@@ -1,5 +1,6 @@
 package kb_bridge.domain.company.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -22,7 +23,8 @@ public final class ConsultationDtos {
             Long planId,
             Long generatedFromResultId,
             String questionSource,
-            String questionText
+            String questionText,
+            AnswerQuestionRequest answer
     ) {
     }
 
@@ -45,7 +47,10 @@ public final class ConsultationDtos {
             String extractionMethod,
             String verificationStatus,
             OffsetDateTime effectiveFrom,
-            String note
+            String note,
+            BigDecimal amount,
+            String currency,
+            Boolean rmConfirmed
     ) {
     }
 

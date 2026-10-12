@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
@@ -42,6 +43,12 @@ public class PlanFactEntity {
 
     @Column(name = "plan_status", nullable = false, length = 30)
     private String planStatus;
+
+    @Column(name = "amount", precision = 20, scale = 2)
+    private BigDecimal amount;
+
+    @Column(name = "currency", length = 3)
+    private String currency;
 
     @Column(name = "expected_at")
     private LocalDate expectedAt;
@@ -84,7 +91,9 @@ public class PlanFactEntity {
             String verificationStatus,
             OffsetDateTime effectiveFrom,
             OffsetDateTime confirmedAt,
-            String note
+            String note,
+            BigDecimal amount,
+            String currency
     ) {
         this.company = company;
         this.plan = plan;
@@ -100,6 +109,8 @@ public class PlanFactEntity {
         this.effectiveFrom = effectiveFrom;
         this.confirmedAt = confirmedAt;
         this.note = note;
+        this.amount = amount;
+        this.currency = currency;
     }
 
     public Long getFactId() {
@@ -152,6 +163,14 @@ public class PlanFactEntity {
 
     public OffsetDateTime getConfirmedAt() {
         return confirmedAt;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public String getCurrency() {
+        return currency;
     }
 
     public String getNote() {

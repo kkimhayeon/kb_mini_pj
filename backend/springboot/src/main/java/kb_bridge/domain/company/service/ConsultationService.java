@@ -72,7 +72,13 @@ public class ConsultationService {
 
         List<CreateQuestionRequest> questions = request.questions() == null ? List.of() : request.questions();
         for (CreateQuestionRequest question : questions) {
-            consultationQaRepository.save(toQuestion(company, consultation, question));
+            if (question == null) {
+                throw new IllegalArgumentException("questions must not contain null.");
+            }
+            ConsultationQaEntity qa = consultationQaRepository.save(toQuestion(company, consultation, question));
+            if (question.answer() != null) {
+                applyAnswer(qa, question.answer());
+            }
         }
         return toResponse(consultation);
     }
@@ -91,6 +97,11 @@ public class ConsultationService {
     public QuestionAnswerResponse answerQuestion(Long qaId, AnswerQuestionRequest request) {
         ConsultationQaEntity qa = consultationQaRepository.findById(qaId)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown consultation QA id: " + qaId));
+        applyAnswer(qa, request);
+        return toResponse(qa);
+    }
+
+    private void applyAnswer(ConsultationQaEntity qa, AnswerQuestionRequest request) {
         String answerStatus = request.answerStatus() == null ? "ANSWERED" : request.answerStatus();
         requireAllowed("answerStatus", answerStatus, ANSWER_STATUSES);
         if ("ANSWERED".equals(answerStatus) && isBlank(request.answerText())) {
@@ -102,9 +113,11 @@ public class ConsultationService {
         qa.answer(answerStatus, blankToNull(request.answerText()), answeredAt, blankToNull(request.answeredBy()));
 
         if (request.planFact() != null) {
+            if (!"ANSWERED".equals(answerStatus)) {
+                throw new IllegalArgumentException("Plan facts require an answered question.");
+            }
             planFactRepository.save(toPlanFact(qa, request.planFact(), answeredAt));
         }
-        return toResponse(qa);
     }
 
     private ConsultationQaEntity toQuestion(CompanyEntity company, ConsultationEntity consultation, CreateQuestionRequest request) {
@@ -130,13 +143,44 @@ public class ConsultationService {
                 ? request.domain()
                 : (plan == null ? null : plan.getDomain());
         requireAllowed("domain", domain, DOMAINS);
+        if (plan != null && !domain.equals(plan.getDomain())) {
+            throw new IllegalArgumentException("Plan fact domain must match its plan.");
+        }
+        if (qa.getPlan() != null && (plan == null || !qa.getPlan().getPlanId().equals(plan.getPlanId()))) {
+            throw new IllegalArgumentException("Plan fact must reference the question's plan.");
+        }
         String planStatus = request.planStatus() == null ? "UNKNOWN" : request.planStatus();
         requireAllowed("planStatus", planStatus, PLAN_STATUSES);
         String extractionMethod = request.extractionMethod() == null ? "RM_ENTERED" : request.extractionMethod();
         requireAllowed("extractionMethod", extractionMethod, EXTRACTION_METHODS);
         String verificationStatus = request.verificationStatus() == null ? "PENDING" : request.verificationStatus();
         requireAllowed("verificationStatus", verificationStatus, VERIFICATION_STATUSES);
+        if ("RM_CONFIRMED".equals(verificationStatus)
+                && (!Boolean.TRUE.equals(request.rmConfirmed()) || plan == null)) {
+            throw new IllegalArgumentException("Confirmed facts require explicit RM confirmation and a linked plan.");
+        }
+        if (Boolean.TRUE.equals(request.rmConfirmed()) && !"RM_CONFIRMED".equals(verificationStatus)) {
+            throw new IllegalArgumentException("RM confirmation and verification status must agree.");
+        }
         OffsetDateTime confirmedAt = "RM_CONFIRMED".equals(verificationStatus) ? OffsetDateTime.now() : null;
+        if ((request.amount() == null) != isBlank(request.currency())) {
+            throw new IllegalArgumentException("amount and currency must be provided together.");
+        }
+        if (request.amount() != null && (request.amount().signum() < 0
+                || request.amount().stripTrailingZeros().scale() > 2
+                || request.amount().compareTo(new java.math.BigDecimal("1000000000000000000")) >= 0)) {
+            throw new IllegalArgumentException("amount must be non-negative with at most 18 integer and 2 decimal digits.");
+        }
+        if (request.currency() != null && !request.currency().matches("[A-Z]{3}")) {
+            throw new IllegalArgumentException("currency must be a three-letter uppercase code.");
+        }
+        if (request.expectedPrecision() != null) {
+            requireAllowed("expectedPrecision", request.expectedPrecision(), Set.of("DAY", "MONTH", "QUARTER", "HALF", "YEAR"));
+        }
+        if (isBlank(request.scope()) && "UNKNOWN".equals(planStatus)
+                && request.amount() == null && request.expectedAt() == null) {
+            throw new IllegalArgumentException("At least one plan field must be supplied.");
+        }
 
         if ((request.expectedAt() == null) != (request.expectedPrecision() == null)) {
             throw new IllegalArgumentException("expectedAt and expectedPrecision must be provided together.");
@@ -156,7 +200,9 @@ public class ConsultationService {
                 verificationStatus,
                 request.effectiveFrom() == null ? answeredAt : request.effectiveFrom(),
                 confirmedAt,
-                blankToNull(request.note())
+                blankToNull(request.note()),
+                request.amount(),
+                request.currency()
         );
     }
 

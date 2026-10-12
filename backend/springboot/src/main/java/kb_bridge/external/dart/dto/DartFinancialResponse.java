@@ -12,7 +12,12 @@ public record DartFinancialResponse(
     public record Item(
             @JsonProperty("account_nm") String accountName,
             @JsonProperty("thstrm_amount") String currentAmount,
-            @JsonProperty("bsns_year") String businessYear
+            @JsonProperty("bsns_year") String businessYear,
+            @JsonProperty("frmtrm_amount") String priorAmount,
+            @JsonProperty("account_id") String accountId,
+            @JsonProperty("sj_div") String statementType,
+            String currency,
+            @JsonProperty("rcept_no") String receiptNumber
     ) {
     }
 }

@@ -15,6 +15,8 @@ public record GapResult(
         String reason,
         String explanationSource,
         List<DisclosureEvidence> evidence,
-        List<String> questions
+        List<String> questions,
+        Long planId,
+        List<PlanComparison.FieldChange> changes
 ) {
 }
